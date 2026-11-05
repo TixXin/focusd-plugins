@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "plugins": [
+    {
+      "id": "dev.focusd.github-issues",
+      "name": {
+        "zh-CN": "GitHub Issue（示例）",
+        "en": "GitHub issues (example)"
+      },
+      "description": {
+        "zh-CN": "在岛上加一个页面，列出一个公开仓库的未关闭 issue，点一条就在浏览器里打开。不需要令牌，仓库在设置里填。演示列表模板。用 Windows 自带的 PowerShell 运行。",
+        "en": "Adds an island page listing the open issues of a public repository; click one to open it in the browser. No token needed; set the repository in the settings. Shows the list template. Runs on the PowerShell built into Windows."
+      },
+      "version": "1.0.0",
+      "apiVersion": 2,
+      "author": "FocuSD",
+      "homepage": "https://github.com/TixXin/fly-island/tree/dev/plugins/examples/dev.focusd.github-issues",
+      "permissions": [],
+      "runtime": "powershell",
+      "publisher": "TixXin",
+      "repo": "TixXin/fly-island",
+      "categories": [
+        "developer",
+        "information"
+      ],
+      "download": {
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.github-issues-1.0.0.zip",
+        "sha256": "ebe9814f92fdcd29dc0c57d0d37eff8fb23ad99bbd7368e989f0085b8bb0abc8",
+        "size": 4357
+      }
+    },
+    {
+      "id": "dev.focusd.now-playing",
+      "name": {
+        "zh-CN": "正在播放（示例）",
+        "en": "Now playing (example)"
+      },
+      "description": {
+        "zh-CN": "换歌时在岛上提示正在播放的歌曲。演示敏感权限：第一次读取播放信息时，岛上会先问你是否允许。用 Windows 自带的 PowerShell 运行。",
+        "en": "Shows the new song on the island when the track changes. Shows a sensitive permission: the first time it reads what is playing, the island asks you first. Runs on the PowerShell built into Windows."
+      },
+      "version": "1.0.0",
+      "apiVersion": 2,
+      "author": "FocuSD",
+      "homepage": "https://github.com/TixXin/fly-island/tree/dev/plugins/examples/dev.focusd.now-playing",
+      "permissions": [
+        "island:notify",
+        "media:read"
+      ],
+      "runtime": "powershell",
+      "publisher": "TixXin",
+      "repo": "TixXin/fly-island",
+      "categories": [
+        "media"
+      ],
+      "download": {
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.0.0.zip",
+        "sha256": "8a95e329fd660e5592c382fd2fa1eb2fa22f37a880ae4952f3bc2555742a9eca",
+        "size": 3132
+      }
+    },
+    {
+      "id": "dev.focusd.pomodoro",
+      "name": {
+        "zh-CN": "番茄钟（示例）",
+        "en": "Pomodoro (example)"
+      },
+      "description": {
+        "zh-CN": "按 Ctrl+Alt+P 或在待办上右键开始一个番茄钟，计时显示在岛上的番茄钟页面和折叠条上，结束时在岛上提示，可以点“再来一轮”。完成的轮数保存在插件存储里。用 Windows 自带的 PowerShell 运行。",
+        "en": "Press Ctrl+Alt+P or right-click a todo to start a pomodoro; the countdown shows on its island page and the collapsed bar, and when it ends the island shows a message with One more round. Finished rounds are kept in plugin storage. Runs on the PowerShell built into Windows."
+      },
+      "version": "1.1.0",
+      "apiVersion": 2,
+      "author": "FocuSD",
+      "homepage": "https://github.com/TixXin/fly-island/tree/dev/plugins/examples/dev.focusd.pomodoro",
+      "permissions": [
+        "island:notify",
+        "todos:read"
+      ],
+      "runtime": "powershell",
+      "publisher": "TixXin",
+      "repo": "TixXin/fly-island",
+      "categories": [
+        "productivity"
+      ],
+      "download": {
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.pomodoro-1.1.0.zip",
+        "sha256": "b39a0345604874525760659dcc479627172594cbb8418e201a87adc4cbc9212c",
+        "size": 5166
+      }
+    },
+    {
+      "id": "dev.focusd.todo-digest",
+      "name": {
+        "zh-CN": "待办摘要（示例）",
+        "en": "Todo digest (example)"
+      },
+      "description": {
+        "zh-CN": "待办变化时在日志里记录未完成待办的数量；点“写入摘要”会把未完成的待办追加到每日笔记。用 Windows 自带的 PowerShell 运行，不需要另外安装任何东西。",
+        "en": "Logs how many todos are open whenever they change; Write digest appends the open todos to the daily note. Runs on the PowerShell built into Windows, so nothing else needs installing."
+      },
+      "version": "1.2.0",
+      "apiVersion": 2,
+      "author": "FocuSD",
+      "homepage": "https://github.com/TixXin/fly-island/tree/dev/plugins/examples/dev.focusd.todo-digest",
+      "permissions": [
+        "notes:write",
+        "todos:read"
+      ],
+      "runtime": "powershell",
+      "publisher": "TixXin",
+      "repo": "TixXin/fly-island",
+      "categories": [
+        "todos",
+        "productivity"
+      ],
+      "download": {
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-digest-1.2.0.zip",
+        "sha256": "3f0376c411a23ac5a4723e23275b2306627a34c6c1c48669b3bc93d803c14af3",
+        "size": 3034
+      }
+    },
+    {
+      "id": "dev.focusd.todo-ring",
+      "name": {
+        "zh-CN": "待办进度环（示例）",
+        "en": "Todo progress ring (example)"
+      },
+      "description": {
+        "zh-CN": "在岛上加一个页面，用一个圆环画出今天的待办完成了多少，待办一变就跟着动。页面是插件自己写的 HTML（自定义界面），只能和插件进程通信，不能联网。用 Windows 自带的 PowerShell 运行。",
+        "en": "Adds an island page with a ring showing how much of today's todos is done; it moves as soon as they change. The page is the plugin's own HTML (custom UI) that can only talk to the plugin process and cannot go online. Runs on the PowerShell built into Windows."
+      },
+      "version": "1.0.0",
+      "apiVersion": 2,
+      "author": "FocuSD",
+      "homepage": "https://github.com/TixXin/fly-island/tree/main/plugins/examples/dev.focusd.todo-ring",
+      "permissions": [
+        "todos:read"
+      ],
+      "runtime": "powershell",
+      "webview": true,
+      "publisher": "TixXin",
+      "repo": "TixXin/fly-island",
+      "categories": [
+        "todos",
+        "productivity"
+      ],
+      "download": {
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.0.0.zip",
+        "sha256": "ea05967768fe8e52bb3c985c58483a7b22fa5527cc81cfe9d3bbb36f5c53f226",
+        "size": 6525
+      }
+    }
+  ]
+}

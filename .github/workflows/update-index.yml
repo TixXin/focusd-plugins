@@ -1,0 +1,64 @@
+# Rebuilds and signs the index every hour (new releases of listed plugins), and
+# whenever main changes. The signing key is a secret of the "release"
+# environment, which only the main branch may use.
+name: Update index
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "plugins/**"
+      - "revoked.json"
+      - "keys/**"
+      - "scripts/**"
+      - "package*.json"
+      - ".github/workflows/update-index.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: update-index
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build the index
+        id: build
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/build-index.mjs
+      - name: Sign
+        env:
+          FOCUSD_PLUGIN_SIGNING_KEY: ${{ secrets.FOCUSD_PLUGIN_SIGNING_KEY }}
+        run: node scripts/sign.mjs
+      - name: Commit
+        run: |
+          git add index.json index.json.sig revoked.json revoked.json.sig
+          if git diff --cached --quiet; then
+            echo "The index did not change."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(index): update the plugin index"
+          git push
+      - name: Report build errors
+        if: steps.build.outcome == 'failure'
+        run: |
+          echo "Some plugins could not be updated; see the build step and the job summary."
+          exit 1

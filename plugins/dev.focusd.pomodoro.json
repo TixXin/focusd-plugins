@@ -1,0 +1,9 @@
+{
+  "id": "dev.focusd.pomodoro",
+  "repo": "TixXin/fly-island",
+  "publisher": "TixXin",
+  "categories": [
+    "productivity"
+  ],
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.pomodoro-1.1.0.zip"
+}

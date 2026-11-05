@@ -1,0 +1,10 @@
+{
+  "id": "dev.focusd.todo-ring",
+  "repo": "TixXin/fly-island",
+  "publisher": "TixXin",
+  "categories": [
+    "todos",
+    "productivity"
+  ],
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.0.0.zip"
+}

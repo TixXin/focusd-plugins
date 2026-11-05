@@ -1,0 +1,29 @@
+name: 报告插件问题 / Report a plugin
+description: 插件有恶意行为、安全问题或严重故障 / A plugin is malicious, insecure or badly broken
+labels: [report]
+body:
+  - type: input
+    id: plugin
+    attributes:
+      label: 插件 id 和版本 / Plugin id and version
+      placeholder: com.example.clock 1.2.0
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 问题类型 / Kind
+      options:
+        - 恶意行为或泄露数据 / Malicious or leaks data
+        - 安全漏洞 / Security vulnerability
+        - 严重故障 / Badly broken
+        - 其他 / Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: 详情 / Details
+      description: 发生了什么，怎么复现 / What happened and how to reproduce it
+    validations:
+      required: true

@@ -1,0 +1,9 @@
+{
+  "id": "dev.focusd.now-playing",
+  "repo": "TixXin/fly-island",
+  "publisher": "TixXin",
+  "categories": [
+    "media"
+  ],
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.0.0.zip"
+}

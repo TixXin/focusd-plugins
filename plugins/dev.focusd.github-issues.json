@@ -1,0 +1,10 @@
+{
+  "id": "dev.focusd.github-issues",
+  "repo": "TixXin/fly-island",
+  "publisher": "TixXin",
+  "categories": [
+    "developer",
+    "information"
+  ],
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.github-issues-1.0.0.zip"
+}
