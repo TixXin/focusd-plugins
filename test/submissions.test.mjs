@@ -56,7 +56,7 @@ const release = (tag, { draft = false, prerelease = false, asset = true } = {}) 
 
 test("the newest published release with the right asset is picked", () => {
   const releases = [release("v2.0.0", { draft: true }), release("v1.3.0", { prerelease: true }), release("v1.2.0", { asset: false }), release("v1.10.0"), release("v1.9.0")];
-  assert.deepEqual(pickRelease(releases, good), { version: "1.10.0", url: "https://example.com/v1.10.0.zip", tag: "v1.10.0" });
+  assert.deepEqual(pickRelease(releases, good), { version: "1.10.0", url: "https://example.com/v1.10.0.zip", tag: "v1.10.0", signatureUrl: null });
   assert.equal(pickRelease(releases, { ...good, preRelease: true }).version, "1.10.0");
   assert.equal(pickRelease([release("v1.3.0", { prerelease: true })], { ...good, preRelease: true }).version, "1.3.0");
   assert.equal(pickRelease([release("v1.2.0", { asset: false })], good), null);

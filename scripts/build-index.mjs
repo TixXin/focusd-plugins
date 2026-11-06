@@ -5,7 +5,10 @@
 // update that asks for more (permissions, webview, runtime) is held back and
 // reported for review instead of being listed. README.md / CHANGELOG.md come
 // from the package, or else from the repository at the release tag, and stay
-// with the version they were read for. Signing is scripts/sign.mjs.
+// with the version they were read for. A submission with "signingKeys" lists only
+// versions its author signed (<zip>.sig); a maintainer's "approved" does not
+// change that. A listed version without a signature gets one added once the
+// author publishes a valid one. Signing the index is scripts/sign.mjs.
 //
 // Usage: node scripts/build-index.mjs   (exit code 1 when a plugin had errors;
 // index.json is still written with everything that worked)
@@ -13,7 +16,7 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { api } from "./lib/github.mjs";
-import { fetchAndInspect, indexEntry, locatePackage, marketDetails, repoDocs, reviewReasons } from "./lib/packages.mjs";
+import { fetchAndInspect, indexEntry, locatePackage, marketDetails, readAuthorSignature, repoDocs, reviewReasons } from "./lib/packages.mjs";
 import { compareVersions, loadSubmissions, submissionErrors } from "./lib/submissions.mjs";
 
 export const INDEX_PATH = "index.json";
@@ -27,14 +30,28 @@ function readIndex(root) {
 }
 
 /** One plugin: { entry|null, held|null, errors, warnings }. */
-export async function buildEntry(submission, previous, deps = { locatePackage, fetchAndInspect, repoDocs }) {
+export async function buildEntry(submission, previous, deps = { locatePackage, fetchAndInspect, repoDocs, readAuthorSignature }) {
+  const readSignature = deps.readAuthorSignature ?? readAuthorSignature;
   const location = await deps.locatePackage(submission);
   if (!location) {
     const error = `No release of ${submission.repo} has a tag like ${submission.tagPrefix ?? ""}v1.2.3 with the asset ${submission.id}-<version>.zip.`;
     return { entry: previous ?? null, held: null, errors: previous ? [] : [error], warnings: previous ? [error] : [] };
   }
   const unchanged = previous && (location.version ? location.version === previous.version : location.url === previous.download.url);
-  if (unchanged) return { entry: { ...previous, ...marketDetails(submission) }, held: null, errors: [], warnings: [] };
+  if (unchanged) {
+    const entry = { ...previous, ...marketDetails(submission) };
+    if (!submission.signingKeys || previous.authorSignature) return { entry, held: null, errors: [], warnings: [] };
+    // Signing a listed version later changes nothing in its package.
+    let signed;
+    try {
+      signed = await readSignature(submission, location, previous.download.sha256, previous.id, previous.version);
+    } catch (error) {
+      signed = { error: error.message };
+    }
+    return signed.fields
+      ? { entry: { ...entry, ...signed.fields }, held: null, errors: [], warnings: [] }
+      : { entry, held: null, errors: [], warnings: [`${previous.version} ${signed.error}`] };
+  }
   if (previous && location.version && compareVersions(location.version, previous.version) < 0) {
     return { entry: { ...previous, ...marketDetails(submission) }, held: null, errors: [], warnings: [`The newest release (${location.version}) is older than the listed ${previous.version}; keeping ${previous.version}.`] };
   }
@@ -50,6 +67,16 @@ export async function buildEntry(submission, previous, deps = { locatePackage, f
     }
   }
   const entry = indexEntry(manifest, submission, location.url, zip, allDocs);
+  if (submission.signingKeys) {
+    let signed;
+    try {
+      signed = await readSignature(submission, location, entry.download.sha256, entry.id, entry.version);
+    } catch (error) {
+      signed = { error: error.message };
+    }
+    if (signed.error) return { entry: previous ?? null, held: { id: entry.id, version: entry.version, reasons: [signed.error], unsigned: true }, errors: [], warnings };
+    Object.assign(entry, signed.fields);
+  }
   if (previous && compareVersions(entry.version, previous.version) === 0) {
     return { entry: { ...previous, ...marketDetails(submission) }, held: null, errors: [`${entry.version} is already listed with a different package; publish a new version.`], warnings };
   }
@@ -65,7 +92,7 @@ export async function buildEntry(submission, previous, deps = { locatePackage, f
 async function reportHeld(held) {
   const repo = process.env.GITHUB_REPOSITORY;
   if (!repo || !process.env.GITHUB_TOKEN) return;
-  for (const { id, version, reasons } of held) {
+  for (const { id, version, reasons, unsigned } of held) {
     const title = `Review needed: ${id} ${version}`;
     const { body } = await api(`/repos/${repo}/issues?state=open&labels=review-needed&per_page=100`);
     if (Array.isArray(body) && body.some((issue) => issue.title === title)) continue;
@@ -74,7 +101,9 @@ async function reportHeld(held) {
       body: {
         title,
         labels: ["review-needed"],
-        body: `The newest release of \`${id}\` (${version}) was not listed automatically because it ${reasons.join("; ")}.\n\nTo list it, review the release and merge a pull request that sets \`"approved": "${version}"\` in \`plugins/${id}.json\`. The next index build lists it; then close this issue.`,
+        body: unsigned
+          ? `The newest release of \`${id}\` (${version}) was not listed because it ${reasons.join("; ")}.\n\nOnly releases signed by the author are listed for this plugin, and approving the version does not change that: the author should attach \`${id}-${version}.zip.sig\` made with \`npx fly-island-plugin sign\`. If the author did not publish this release, the repository may have been taken over. Close this issue once it is listed.`
+          : `The newest release of \`${id}\` (${version}) was not listed automatically because it ${reasons.join("; ")}.\n\nTo list it, review the release and merge a pull request that sets \`"approved": "${version}"\` in \`plugins/${id}.json\`. The next index build lists it; then close this issue.`,
       },
     });
   }

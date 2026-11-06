@@ -7,5 +7,11 @@
     "productivity"
   ],
   "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.0.1.zip",
-  "path": "plugins/examples/dev.focusd.todo-ring"
+  "path": "plugins/examples/dev.focusd.todo-ring",
+  "signingKeys": [
+    {
+      "keyId": "0c663505c8e1d524",
+      "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+    }
+  ]
 }

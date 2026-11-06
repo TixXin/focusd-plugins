@@ -6,5 +6,11 @@
     "productivity"
   ],
   "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.pomodoro-1.1.1.zip",
-  "path": "plugins/examples/dev.focusd.pomodoro"
+  "path": "plugins/examples/dev.focusd.pomodoro",
+  "signingKeys": [
+    {
+      "keyId": "0c663505c8e1d524",
+      "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+    }
+  ]
 }

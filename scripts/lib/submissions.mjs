@@ -3,6 +3,7 @@
 // package comes from and how the market lists it.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { signingKeyErrors } from "./signing.mjs";
 
 export const PLUGINS_DIR = "plugins";
 /** The island's own publisher (OFFICIAL_PUBLISHER in the island's plugin_host/market.rs). */
@@ -12,7 +13,7 @@ export const CATEGORIES = ["productivity", "todos", "developer", "media", "messa
 const ID_PATTERN = /^[a-z0-9][a-z0-9.-]*$/;
 const REPO_PATTERN = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
-const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved", "path"]);
+const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved", "path", "signingKeys"]);
 /** A folder inside the repository: segments of letters, digits, ".", "_" and "-", no ".." and no leading "/". */
 const FOLDER_PATTERN = /^(?!.*(^|\/)\.\.?(\/|$))[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/;
 
@@ -24,7 +25,7 @@ export function submissionErrors(submission, fileName) {
   const errors = [];
   if (typeof submission !== "object" || submission === null || Array.isArray(submission)) return ["must be a JSON object."];
   for (const key of Object.keys(submission)) if (!KEYS.has(key)) errors.push(`unknown field "${key}".`);
-  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved, path: folder } = submission;
+  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved, path: folder, signingKeys } = submission;
   if (typeof id !== "string" || id.length < 3 || id.length > 64 || !ID_PATTERN.test(id) || id.includes("..")) {
     errors.push(`"id" must be 3-64 characters of a-z, 0-9, "." and "-", like the plugin manifest.`);
   } else if (fileName !== `${id}.json`) {
@@ -49,6 +50,7 @@ export function submissionErrors(submission, fileName) {
   if (folder !== undefined && (typeof folder !== "string" || folder.length > 200 || !FOLDER_PATTERN.test(folder))) {
     errors.push(`"path" must be a folder of the repository, like "plugins/clock", without ".." or a leading "/".`);
   }
+  if (signingKeys !== undefined) errors.push(...signingKeyErrors(signingKeys));
   if (packageUrl !== undefined) {
     if (!isOfficial(publisher)) errors.push(`"package" (a fixed download address) is only for the official publisher; others publish GitHub releases.`);
     else if (typeof packageUrl !== "string" || !packageUrl.startsWith("https://")) errors.push(`"package" must be an https:// address.`);
@@ -94,7 +96,8 @@ export function versionOfTag(tag, tagPrefix = "") {
 /**
  * The newest usable release of a submission: published, a tag that names a
  * version, and the asset `<id>-<version>.zip`. Pre-releases only with
- * "preRelease": true. Returns { version, url, tag } or null.
+ * "preRelease": true. Returns { version, url, tag, signatureUrl } or null;
+ * signatureUrl is the release's <zip>.sig asset, null when it has none.
  */
 export function pickRelease(releases, submission) {
   const candidates = [];
@@ -103,7 +106,8 @@ export function pickRelease(releases, submission) {
     const version = versionOfTag(release.tag_name ?? "", submission.tagPrefix);
     if (!version) continue;
     const asset = (release.assets ?? []).find((item) => item.name === `${submission.id}-${version}.zip`);
-    if (asset) candidates.push({ version, url: asset.browser_download_url, tag: release.tag_name });
+    const signature = (release.assets ?? []).find((item) => item.name === `${submission.id}-${version}.zip.sig`);
+    if (asset) candidates.push({ version, url: asset.browser_download_url, tag: release.tag_name, signatureUrl: signature?.browser_download_url ?? null });
   }
   candidates.sort((left, right) => compareVersions(right.version, left.version));
   return candidates[0] ?? null;

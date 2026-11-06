@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { download, downloadTextIfPresent, listReleases } from "./github.mjs";
 import { pickRelease } from "./submissions.mjs";
+import { MAX_SIGNATURE_BYTES, parseSignature, verifyPackage } from "./signing.mjs";
 import { extractZip } from "./zip.mjs";
 
 export const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
@@ -20,9 +21,9 @@ const CLI = path.join(path.dirname(fileURLToPath(import.meta.resolve("fly-island
 
 export const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
 
-/** Where the newest package of a submission is: { url, version|null, tag|null }, or null when there is none. */
+/** Where the newest package of a submission is: { url, version|null, tag|null, signatureUrl|null }, or null when there is none. */
 export async function locatePackage(submission) {
-  if (submission.package) return { url: submission.package, version: null, tag: null };
+  if (submission.package) return { url: submission.package, version: null, tag: null, signatureUrl: `${submission.package}.sig` };
   return pickRelease(await listReleases(submission.repo), submission);
 }
 
@@ -118,6 +119,23 @@ export async function inspectPackage(zip, expected) {
 export async function fetchAndInspect(submission, location) {
   const zip = await download(location.url, MAX_PACKAGE_BYTES);
   return { zip, ...(await inspectPackage(zip, { id: submission.id, version: location.version })) };
+}
+
+/**
+ * The author signature of a package for a submission with "signingKeys":
+ * { fields: { authorSignature, authorKeys } } to add to the index entry, or
+ * { error } saying why it cannot be listed.
+ */
+export async function readAuthorSignature(submission, location, sha256, id, version) {
+  const name = `${id}-${version}.zip.sig`;
+  if (!location.signatureUrl) return { error: `has no author signature (${name}) although plugins/${id}.json lists signingKeys` };
+  const text = await downloadTextIfPresent(location.signatureUrl, MAX_SIGNATURE_BYTES);
+  if (text === null) return { error: `has no author signature (${name}) although plugins/${id}.json lists signingKeys` };
+  const signature = parseSignature(text);
+  if (!signature || !verifyPackage(id, version, sha256, signature, submission.signingKeys)) {
+    return { error: `its author signature (${name}) is not made by a key in signingKeys` };
+  }
+  return { fields: { authorSignature: signature, authorKeys: submission.signingKeys } };
 }
 
 /** What the plugin needs installed, like runtime_requirement in the island's plugin_host/manifest.rs. */

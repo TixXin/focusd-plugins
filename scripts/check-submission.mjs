@@ -13,7 +13,7 @@ import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { api } from "./lib/github.mjs";
-import { fetchAndInspect, indexEntry, locatePackage } from "./lib/packages.mjs";
+import { fetchAndInspect, indexEntry, locatePackage, readAuthorSignature } from "./lib/packages.mjs";
 import { PLUGINS_DIR, idKey, loadSubmissions, ownerOf, submissionErrors } from "./lib/submissions.mjs";
 import { revokedErrors } from "./sign.mjs";
 
@@ -108,6 +108,13 @@ export async function checkPullRequest(root, { base, author, association }) {
       }
       const result = await fetchAndInspect(submission, location);
       for (const error of result.errors) errors.push(`${submission.id}: ${error}`);
+      // signingKeys: the newest release must be signed with one of them, which shows the submitter holds the key.
+      if (result.errors.length === 0 && submission.signingKeys) {
+        const entry = indexEntry(result.manifest, submission, location.url, result.zip);
+        const signed = await readAuthorSignature(submission, location, entry.download.sha256, entry.id, entry.version);
+        if (signed.error) errors.push(`${submission.id}: the newest release ${signed.error}.`);
+        else notes.push(`- Signed by the author with key ${signed.fields.authorSignature.keyId}.`);
+      }
       if (result.errors.length === 0) notes.push(...describe(indexEntry(result.manifest, submission, location.url, result.zip), result.warnings), "");
     } catch (error) {
       errors.push(`${submission.id}: ${error.message}`);

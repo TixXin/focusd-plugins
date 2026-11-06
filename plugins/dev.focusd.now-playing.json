@@ -6,5 +6,11 @@
     "media"
   ],
   "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.0.1.zip",
-  "path": "plugins/examples/dev.focusd.now-playing"
+  "path": "plugins/examples/dev.focusd.now-playing",
+  "signingKeys": [
+    {
+      "keyId": "0c663505c8e1d524",
+      "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+    }
+  ]
 }
