@@ -49,6 +49,7 @@ PR 会自动检查：
 
 - 你是 `repo` 的所有者，或者是其所属组织的**公开**成员；
 - 能找到最新 Release 和附件，zip 不超过 20 MB，能通过 `fly-island-plugin validate`，清单的 id、版本与提交和标签一致；
+- 包里没有常见格式的密钥：GitHub / npm 令牌、AWS 访问密钥、私钥、Slack 令牌、Google API Key、OpenAI / Anthropic API Key、Stripe 正式密钥。发现了就不收录，检查结果只写文件和行号，不写密钥本身。密钥一旦发布就算泄露了：请先在对应服务里撤销，再从包里去掉，发一个新版本。每小时的自动更新也做同样的检查；
 - 检查结果（申请的权限、运行时、是否有自定义网页界面）列在 Actions 的运行摘要里，供审核参考。
 
 检查通过后，维护者会**阅读插件源码**，再合并。合并后一小时内，插件出现在岛屿的插件市场里。
@@ -98,7 +99,7 @@ PR 会自动检查：
 2. Publish a GitHub release in your repository: tag = manifest `version` (optionally prefixed with `v`), asset = `<id>-<version>.zip`.
 3. Open a pull request here that adds only `plugins/<id>.json` (fields above). You must own `repo`, or be a public member of the organization that owns it. Ids containing `focusd` are reserved.
    Optional: `path`, the folder of the plugin in the repository, where the market looks for `README.md` / `CHANGELOG.md` when the package leaves them out (shown in the market's details, 16 KB each, fixed per version).
-4. Checks run automatically; a maintainer reads the source and merges. The plugin appears in the market within an hour.
+4. Checks run automatically, including a scan for leaked credentials (tokens, API keys, private keys; a hit blocks the listing); a maintainer reads the source and merges. The plugin appears in the market within an hour.
    Optional author signing: `npx fly-island-plugin keygen` once and list the printed key as `"signingKeys"`, then `npx fly-island-plugin pack --sign` and attach `<zip>.sig` too. Only signed plugins update by themselves on users' islands, and an update signed by another key waits for each user's confirmation. With `signingKeys`, unsigned versions are never listed, approved or not.
    Optional "verified" mark: a GitHub organization with a verified domain gets it automatically; otherwise list `"domain": "example.com"` and serve `https://example.com/.well-known/focusd-publisher.json` with `{ "github": "<publisher>" }`.
 5. New versions: just publish a new release. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.

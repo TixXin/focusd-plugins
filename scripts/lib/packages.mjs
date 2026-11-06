@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { download, downloadTextIfPresent, listReleases } from "./github.mjs";
 import { pickRelease } from "./submissions.mjs";
+import { scanFolder } from "./secrets.mjs";
 import { MAX_SIGNATURE_BYTES, parseSignature, verifyPackage } from "./signing.mjs";
 import { extractZip } from "./zip.mjs";
 
@@ -90,6 +91,10 @@ export async function inspectPackage(zip, expected) {
       else if (line.startsWith("warning: ")) warnings.push(line.slice(9));
     }
     if (!validation.ok && errors.length === 0) errors.push(`fly-island-plugin validate failed: ${validation.output}`);
+    // A credential in a public package is leaked for good; the author has to revoke it and publish again.
+    for (const { file, line, kind } of scanFolder(path.join(dir, "plugin"))) {
+      errors.push(`${file}:${line} looks like a ${kind}. Revoke it, remove it from the package and publish a new version.`);
+    }
     if (manifest.id !== expected.id) errors.push(`The manifest id is "${manifest.id}", not "${expected.id}".`);
     if (expected.version && manifest.version !== expected.version) {
       errors.push(`The manifest version is "${manifest.version}", but the release tag says ${expected.version}.`);
@@ -158,6 +163,17 @@ export function marketDetails(submission) {
   };
 }
 
+/**
+ * Permissions the plugin asks for while it runs (manifest optionalPermissions,
+ * API version 2), without those in `permissions`; like the island's manifest.rs.
+ * They need no review on update: the island asks the user each time.
+ */
+export function optionalPermissions(manifest) {
+  if ((manifest.apiVersion ?? 1) < 2) return [];
+  const required = new Set(manifest.permissions ?? []);
+  return [...new Set(manifest.optionalPermissions ?? [])].filter((name) => !required.has(name)).sort();
+}
+
 /** The index entry (same shape as MarketEntry in the island's plugin_host/market.rs). */
 export function indexEntry(manifest, submission, url, zip, docs = {}) {
   return {
@@ -170,6 +186,7 @@ export function indexEntry(manifest, submission, url, zip, docs = {}) {
     author: manifest.author ?? "",
     homepage: manifest.homepage ?? "",
     permissions: [...new Set(manifest.permissions ?? [])].sort(),
+    ...(optionalPermissions(manifest).length > 0 ? { optionalPermissions: optionalPermissions(manifest) } : {}),
     runtime: runtimeRequirement(manifest.runtime),
     ...((manifest.contributes?.views ?? []).some((view) => view.template === "webview") ? { webview: true } : {}),
     ...marketDetails(submission),
