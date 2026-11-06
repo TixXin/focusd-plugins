@@ -3,7 +3,7 @@ import { createPublicKey, generateKeyPairSync, sign } from "node:crypto";
 import test from "node:test";
 import { buildEntry } from "../scripts/build-index.mjs";
 import { indexEntry } from "../scripts/lib/packages.mjs";
-import { keyIdOf, signedText, signingKeyErrors, verifyPackage } from "../scripts/lib/signing.mjs";
+import { endorsementText, keyChangeNotes, keyIdOf, signedText, signingKeyErrors, verifyEndorsement, verifyPackage } from "../scripts/lib/signing.mjs";
 import { pickRelease, submissionErrors } from "../scripts/lib/submissions.mjs";
 
 const { privateKey } = generateKeyPairSync("ed25519");
@@ -29,11 +29,12 @@ const goodSignature = async (sub, location, sha, id, version) =>
   verifyPackage(id, version, sha, signed(id, version, sha), sub.signingKeys) ? { fields: { authorSignature: signed(id, version, sha), authorKeys: sub.signingKeys } } : { error: "bad" };
 
 test("signingKeys must be keys as keygen prints them", () => {
-  assert.deepEqual(signingKeyErrors([key]), []);
+  assert.deepEqual(signingKeyErrors([key], "com.example.clock"), []);
   assert.deepEqual(submissionErrors(submission, "com.example.clock.json"), []);
-  assert.equal(signingKeyErrors([]).length, 1);
-  assert.equal(signingKeyErrors([{ ...key, keyId: "0000000000000000" }]).length, 1);
-  assert.equal(signingKeyErrors([{ ...key, extra: 1 }]).length, 1);
+  assert.equal(signingKeyErrors([], "com.example.clock").length, 1);
+  assert.equal(signingKeyErrors([{ ...key, keyId: "0000000000000000" }], "com.example.clock").length, 1);
+  assert.equal(signingKeyErrors([{ ...key, extra: 1 }], "com.example.clock").length, 1);
+  assert.equal(signingKeyErrors([key, key], "com.example.clock").length, 1);
   assert.match(submissionErrors({ ...submission, signingKeys: "x" }, "com.example.clock.json").join(), /signingKeys/);
 });
 
@@ -83,4 +84,50 @@ test("without signingKeys nothing changes", async () => {
   assert.equal(result.entry.version, "1.0.0");
   assert.equal(result.entry.authorSignature, undefined);
   assert.ok(signingKeys);
+});
+
+function newKey() {
+  const { privateKey: next } = generateKeyPairSync("ed25519");
+  const bytes = createPublicKey(next).export({ format: "der", type: "spki" }).subarray(12);
+  return { privateKey: next, key: { keyId: keyIdOf(bytes), publicKey: bytes.toString("base64") } };
+}
+const endorse = (id, oldPrivate, oldKey, key) => ({
+  ...key,
+  endorsedBy: { keyId: oldKey.keyId, signature: sign(null, Buffer.from(endorsementText(id, key)), oldPrivate).toString("base64") },
+});
+
+test("a new key endorsed by a listed key is accepted; a bad endorsement is not", () => {
+  const { key: fresh } = newKey();
+  const endorsed = endorse("com.example.clock", privateKey, key, fresh);
+  assert.deepEqual(signingKeyErrors([key, endorsed], "com.example.clock"), []);
+  assert.equal(verifyEndorsement("com.example.clock", endorsed, [key, endorsed]), true);
+  assert.match(signingKeyErrors([key, endorsed], "com.example.other").join(), /endorsedBy/, "another plugin");
+  assert.match(signingKeyErrors([endorsed], "com.example.clock").join(), /endorsedBy/, "the endorsing key is not listed");
+  const self = endorse("com.example.clock", privateKey, key, key);
+  assert.match(signingKeyErrors([self], "com.example.clock").join(), /endorsedBy/, "a key cannot endorse itself");
+  assert.match(signingKeyErrors([key, { ...endorsed, endorsedBy: { keyId: key.keyId, signature: "AAAA" } }], "com.example.clock").join(), /endorsedBy/);
+});
+
+test("the reviewer is told about added and removed keys", () => {
+  const { key: fresh } = newKey();
+  const endorsed = endorse("com.example.clock", privateKey, key, fresh);
+  assert.match(keyChangeNotes("com.example.clock", undefined, [key]).join(), /First signing key/);
+  assert.match(keyChangeNotes("com.example.clock", [key], [key, endorsed]).join(), /endorsed by/);
+  assert.match(keyChangeNotes("com.example.clock", [key], [fresh]).join(), /no endorsement[\s\S]*removed/);
+  assert.match(keyChangeNotes("com.example.clock", [key], undefined).join(), /no longer be signed/);
+  assert.deepEqual(keyChangeNotes("com.example.clock", [key], [key]), []);
+});
+
+test("a release signed with the endorsed new key is listed with both keys", async () => {
+  const { privateKey: nextPrivate, key: fresh } = newKey();
+  const keys = [key, endorse("com.example.clock", privateKey, key, fresh)];
+  const rotated = { ...submission, signingKeys: keys };
+  const read = async (sub, location, sha, id, version) => {
+    const signature = { keyId: fresh.keyId, signature: sign(null, Buffer.from(signedText(id, version, sha)), nextPrivate).toString("base64") };
+    return verifyPackage(id, version, sha, signature, sub.signingKeys) ? { fields: { authorSignature: signature, authorKeys: sub.signingKeys } } : { error: "bad" };
+  };
+  const result = await buildEntry(rotated, listed("1.0.0"), deps("1.1.0", read));
+  assert.equal(result.entry.version, "1.1.0");
+  assert.equal(result.entry.authorSignature.keyId, fresh.keyId);
+  assert.deepEqual(result.entry.authorKeys, keys);
 });

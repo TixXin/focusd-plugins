@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { api } from "./lib/github.mjs";
 import { fetchAndInspect, indexEntry, locatePackage, readAuthorSignature } from "./lib/packages.mjs";
 import { PLUGINS_DIR, idKey, loadSubmissions, ownerOf, submissionErrors } from "./lib/submissions.mjs";
+import { keyChangeNotes } from "./lib/signing.mjs";
 import { revokedErrors } from "./sign.mjs";
 
 const MAINTAINERS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
@@ -87,16 +88,16 @@ export async function checkPullRequest(root, { base, author, association }) {
     const twin = all.find((item) => item.fileName !== fileName && idKey(item.submission.id ?? "") === idKey(submission.id));
     if (twin) errors.push(`plugins/${fileName}: the id is too close to ${twin.submission.id}.`);
 
+    const before = spawnSync("git", ["show", `${base}:${PLUGINS_DIR}/${fileName}`], { encoding: "utf8" });
+    const old = before.status === 0 ? JSON.parse(before.stdout) : null;
+    notes.push(...keyChangeNotes(submission.id, old?.signingKeys, submission.signingKeys));
+
     if (!maintainer) {
       if (!(await ownsRepo(author, submission.repo))) {
         errors.push(`plugins/${fileName}: @${author} must own ${submission.repo} (be its owner, or a public member of its organization).`);
       }
-      const before = spawnSync("git", ["show", `${base}:${PLUGINS_DIR}/${fileName}`], { encoding: "utf8" });
-      if (before.status === 0) {
-        const old = JSON.parse(before.stdout);
-        if (old.repo !== submission.repo && !(await ownsRepo(author, old.repo))) {
-          errors.push(`plugins/${fileName}: only the owner of ${old.repo} may move the plugin to another repository.`);
-        }
+      if (old && old.repo !== submission.repo && !(await ownsRepo(author, old.repo))) {
+        errors.push(`plugins/${fileName}: only the owner of ${old.repo} may move the plugin to another repository.`);
       }
     }
 

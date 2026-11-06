@@ -60,7 +60,7 @@ PR 会自动检查：
 2. 每次发版：`npx fly-island-plugin pack --sign`，把 `<id>-<version>.zip` 和 `<id>-<version>.zip.sig` 一起附到 Release。
 3. 第一次登记 `signingKeys` 的 PR 会检查最新 Release 已经带着用这把密钥做的签名，证明你持有私钥。
 
-登记之后，没有签名或签名不对的新版本**不会上架**，会开一个 `review-needed` issue；维护者写 `approved` 也不能让它上架，只能由作者补上签名。已上架但还没有签名的版本，补上 `.zip.sig` 后下一次构建会给它加上签名。换密钥或停用签名要开 PR 并等维护者核实身份。
+登记之后，没有签名或签名不对的新版本**不会上架**，会开一个 `review-needed` issue；维护者写 `approved` 也不能让它上架，只能由作者补上签名。已上架但还没有签名的版本，补上 `.zip.sig` 后下一次构建会给它加上签名。**换密钥**（旧密钥还在）：运行 `npx fly-island-plugin keys rotate`，把它打印的新条目（带 `endorsedBy`，旧密钥的证明）加在 `signingKeys` 里旧密钥的后面，开 PR；CI 会核对证明。合并后用新密钥签名发版，用户的岛屿会自动接受新密钥。旧密钥可以留一段时间再删。**丢了旧密钥**或想停用签名：开 PR 直接换掉或删掉，维护者核实身份后才合并，之后的第一个更新每个用户都要手动确认。
 
 ## 发布新版本
 

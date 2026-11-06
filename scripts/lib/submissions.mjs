@@ -50,7 +50,7 @@ export function submissionErrors(submission, fileName) {
   if (folder !== undefined && (typeof folder !== "string" || folder.length > 200 || !FOLDER_PATTERN.test(folder))) {
     errors.push(`"path" must be a folder of the repository, like "plugins/clock", without ".." or a leading "/".`);
   }
-  if (signingKeys !== undefined) errors.push(...signingKeyErrors(signingKeys));
+  if (signingKeys !== undefined) errors.push(...signingKeyErrors(signingKeys, id));
   if (packageUrl !== undefined) {
     if (!isOfficial(publisher)) errors.push(`"package" (a fixed download address) is only for the official publisher; others publish GitHub releases.`);
     else if (typeof packageUrl !== "string" || !packageUrl.startsWith("https://")) errors.push(`"package" must be an https:// address.`);
