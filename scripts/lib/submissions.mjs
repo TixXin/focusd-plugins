@@ -13,7 +13,9 @@ export const CATEGORIES = ["productivity", "todos", "developer", "media", "messa
 const ID_PATTERN = /^[a-z0-9][a-z0-9.-]*$/;
 const REPO_PATTERN = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
-const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved", "path", "signingKeys"]);
+const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved", "path", "signingKeys", "domain"]);
+/** A lower-case host name with a dot; no port, no IP address (verified publishers, publishers.mjs). */
+export const DOMAIN_PATTERN = /^(?=.{4,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 /** A folder inside the repository: segments of letters, digits, ".", "_" and "-", no ".." and no leading "/". */
 const FOLDER_PATTERN = /^(?!.*(^|\/)\.\.?(\/|$))[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/;
 
@@ -25,7 +27,7 @@ export function submissionErrors(submission, fileName) {
   const errors = [];
   if (typeof submission !== "object" || submission === null || Array.isArray(submission)) return ["must be a JSON object."];
   for (const key of Object.keys(submission)) if (!KEYS.has(key)) errors.push(`unknown field "${key}".`);
-  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved, path: folder, signingKeys } = submission;
+  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved, path: folder, signingKeys, domain } = submission;
   if (typeof id !== "string" || id.length < 3 || id.length > 64 || !ID_PATTERN.test(id) || id.includes("..")) {
     errors.push(`"id" must be 3-64 characters of a-z, 0-9, "." and "-", like the plugin manifest.`);
   } else if (fileName !== `${id}.json`) {
@@ -51,6 +53,9 @@ export function submissionErrors(submission, fileName) {
     errors.push(`"path" must be a folder of the repository, like "plugins/clock", without ".." or a leading "/".`);
   }
   if (signingKeys !== undefined) errors.push(...signingKeyErrors(signingKeys, id));
+  if (domain !== undefined && (typeof domain !== "string" || !DOMAIN_PATTERN.test(domain))) {
+    errors.push(`"domain" must be a lower-case host name like "example.com" (no https://, port or path).`);
+  }
   if (packageUrl !== undefined) {
     if (!isOfficial(publisher)) errors.push(`"package" (a fixed download address) is only for the official publisher; others publish GitHub releases.`);
     else if (typeof packageUrl !== "string" || !packageUrl.startsWith("https://")) errors.push(`"package" must be an https:// address.`);

@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { api } from "./lib/github.mjs";
 import { fetchAndInspect, indexEntry, locatePackage, readAuthorSignature } from "./lib/packages.mjs";
 import { PLUGINS_DIR, idKey, loadSubmissions, ownerOf, submissionErrors } from "./lib/submissions.mjs";
+import { checkPublisher } from "./lib/publishers.mjs";
 import { keyChangeNotes } from "./lib/signing.mjs";
 import { revokedErrors } from "./sign.mjs";
 
@@ -91,6 +92,10 @@ export async function checkPullRequest(root, { base, author, association }) {
     const before = spawnSync("git", ["show", `${base}:${PLUGINS_DIR}/${fileName}`], { encoding: "utf8" });
     const old = before.status === 0 ? JSON.parse(before.stdout) : null;
     notes.push(...keyChangeNotes(submission.id, old?.signingKeys, submission.signingKeys));
+    // "domain" must prove itself now, so a typo does not wait for the hourly build.
+    const publisher = await checkPublisher(submission.publisher, submission.domain);
+    if (publisher.state === "verified") notes.push(`- Verified publisher (${publisher.verified.domain ?? "GitHub organization with a verified domain"}).`);
+    else if (submission.domain && publisher.state !== "official") errors.push(`plugins/${fileName}: ${publisher.reason}`);
 
     if (!maintainer) {
       if (!(await ownsRepo(author, submission.repo))) {

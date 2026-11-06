@@ -8,7 +8,8 @@
 // with the version they were read for. A submission with "signingKeys" lists only
 // versions its author signed (<zip>.sig); a maintainer's "approved" does not
 // change that. A listed version without a signature gets one added once the
-// author publishes a valid one. Signing the index is scripts/sign.mjs.
+// author publishes a valid one. Publishers are checked for the "verified" mark
+// (lib/publishers.mjs) at every build. Signing the index is scripts/sign.mjs.
 //
 // Usage: node scripts/build-index.mjs   (exit code 1 when a plugin had errors;
 // index.json is still written with everything that worked)
@@ -17,6 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { api } from "./lib/github.mjs";
 import { fetchAndInspect, indexEntry, locatePackage, marketDetails, readAuthorSignature, repoDocs, reviewReasons } from "./lib/packages.mjs";
+import { applyVerification } from "./lib/publishers.mjs";
 import { compareVersions, loadSubmissions, submissionErrors } from "./lib/submissions.mjs";
 
 export const INDEX_PATH = "index.json";
@@ -109,8 +111,9 @@ async function reportHeld(held) {
   }
 }
 
-export async function buildIndex(root) {
+export async function buildIndex(root, verifyDeps = undefined) {
   const previous = readIndex(root);
+  const submissions = new Map();
   const entries = [];
   const held = [];
   const report = [];
@@ -123,6 +126,7 @@ export async function buildIndex(root) {
       if (previous.has(submission?.id)) entries.push(previous.get(submission.id));
       continue;
     }
+    submissions.set(submission.id, submission);
     let result;
     try {
       result = await buildEntry(submission, previous.get(submission.id));
@@ -136,6 +140,7 @@ export async function buildIndex(root) {
     for (const warning of result.warnings) report.push(`- ⚠️ ${submission.id}: ${warning}`);
     if (result.held) report.push(`- ⏸️ ${submission.id} ${result.held.version} held for review: ${result.held.reasons.join("; ")}`);
   }
+  report.push(...(await applyVerification(entries, submissions, verifyDeps)));
   entries.sort((left, right) => left.id.localeCompare(right.id));
   writeFileSync(path.join(root, INDEX_PATH), `${JSON.stringify({ version: INDEX_VERSION, plugins: entries }, null, 2)}\n`);
   return { entries, held, report, failed };

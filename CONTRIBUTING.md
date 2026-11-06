@@ -42,6 +42,7 @@ English summary at the end.
 | `preRelease` | 可选，`true` 时收录 Pre-release |
 | `tagPrefix` | 可选，标签前缀 |
 | `path` | 可选，插件所在的文件夹（例如 `plugins/clock`），用来找 `README.md` 和 `CHANGELOG.md`；默认是仓库根目录 |
+| `domain` | 可选，你的域名（例如 `example.com`），用来成为「已验证」发布者，见下文 |
 | `signingKeys` | 可选，你的签名公钥，`npx fly-island-plugin keygen` 打印的 `[{ "keyId", "publicKey" }]`，见下文「作者签名」 |
 
 PR 会自动检查：
@@ -51,6 +52,15 @@ PR 会自动检查：
 - 检查结果（申请的权限、运行时、是否有自定义网页界面）列在 Actions 的运行摘要里，供审核参考。
 
 检查通过后，维护者会**阅读插件源码**，再合并。合并后一小时内，插件出现在岛屿的插件市场里。
+
+## 已验证发布者
+
+市场在发布者名字旁显示「已验证」，表示这个发布者确实是它的名字所指的组织或个人（不代表插件安全）。两种方式，满足一种即可：
+
+- **GitHub 组织**：组织已经在 GitHub 上验证了域名（组织主页显示 Verified），不用做任何事。
+- **自己的域名**：在提交里写 `"domain": "example.com"`，并让 `https://example.com/.well-known/focusd-publisher.json` 返回 `{ "github": "<你的 publisher>" }`（HTTPS，不跳转，不超过 4 KB）。PR 会当场检查。
+
+索引每次构建（每小时）都会重新检查；文件没了或组织不再是已验证状态，标记就会去掉。暂时连不上时保留原来的状态。
 
 ## 作者签名
 
@@ -90,4 +100,5 @@ PR 会自动检查：
    Optional: `path`, the folder of the plugin in the repository, where the market looks for `README.md` / `CHANGELOG.md` when the package leaves them out (shown in the market's details, 16 KB each, fixed per version).
 4. Checks run automatically; a maintainer reads the source and merges. The plugin appears in the market within an hour.
    Optional author signing: `npx fly-island-plugin keygen` once and list the printed key as `"signingKeys"`, then `npx fly-island-plugin pack --sign` and attach `<zip>.sig` too. Only signed plugins update by themselves on users' islands, and an update signed by another key waits for each user's confirmation. With `signingKeys`, unsigned versions are never listed, approved or not.
+   Optional "verified" mark: a GitHub organization with a verified domain gets it automatically; otherwise list `"domain": "example.com"` and serve `https://example.com/.well-known/focusd-publisher.json` with `{ "github": "<publisher>" }`.
 5. New versions: just publish a new release. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.
