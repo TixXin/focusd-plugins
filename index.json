@@ -29,7 +29,17 @@
         "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.github-issues-1.0.1.zip",
         "sha256": "26945f9952f932054b71fab91235fa81c0df83b6e45c9b3301045848d14d2945",
         "size": 4353
-      }
+      },
+      "authorSignature": {
+        "keyId": "0c663505c8e1d524",
+        "signature": "Lk2yLTZoM4F26BDRCiTElhl+ZXvImW3bGxYptI28vBtFF9+l5iZ+MnwniBfJoe7U4h+nTlx+f8is0ixoYp/3Dg=="
+      },
+      "authorKeys": [
+        {
+          "keyId": "0c663505c8e1d524",
+          "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+        }
+      ]
     },
     {
       "id": "dev.focusd.now-playing",
@@ -61,7 +71,17 @@
         "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.0.1.zip",
         "sha256": "64e5238f34281fafe855558fc349a96c500a8df34823981193755fa0e3b69bc2",
         "size": 3127
-      }
+      },
+      "authorSignature": {
+        "keyId": "0c663505c8e1d524",
+        "signature": "K2Uy/RC5WdTZITwzOwl+ntMfnOgMJNLpBi4w4oqthKFYZtcbwYBUUTDJtoDptY/CQhrNWXVs/p4Um4iWOsK8AQ=="
+      },
+      "authorKeys": [
+        {
+          "keyId": "0c663505c8e1d524",
+          "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+        }
+      ]
     },
     {
       "id": "dev.focusd.pomodoro",
@@ -93,7 +113,17 @@
         "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.pomodoro-1.1.1.zip",
         "sha256": "111712896a57ccfc221b9eb052cb25d5603a50f96135be2696f5286d16937efe",
         "size": 5162
-      }
+      },
+      "authorSignature": {
+        "keyId": "0c663505c8e1d524",
+        "signature": "CiSBRWntx0ru5cJ8Fgt8MyfPkx1sZSlnXL0DuS92Dw+Ph+3jKicvqYwPAvVlJFrv99yChO/lHt7KjtSOsOrmDQ=="
+      },
+      "authorKeys": [
+        {
+          "keyId": "0c663505c8e1d524",
+          "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+        }
+      ]
     },
     {
       "id": "dev.focusd.todo-digest",
@@ -126,7 +156,17 @@
         "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-digest-1.2.1.zip",
         "sha256": "d31d1dfa2f411928e31dc3370b46bb0b055daecea7ca9a625f10b99f0a736dc8",
         "size": 3028
-      }
+      },
+      "authorSignature": {
+        "keyId": "0c663505c8e1d524",
+        "signature": "wx1vOLcyz4ft4JOBFeTJLEK74+60aZowc2ewT8WNkgfJ7dIzrJ54aLin474/bGkTA8mcoY7m38C51RG7SJoXDA=="
+      },
+      "authorKeys": [
+        {
+          "keyId": "0c663505c8e1d524",
+          "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+        }
+      ]
     },
     {
       "id": "dev.focusd.todo-ring",
@@ -159,7 +199,17 @@
         "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.0.1.zip",
         "sha256": "c30e625e026a64b4d74048a72a11e6b2871b71f2709571ad46f133e26532d04d",
         "size": 6519
-      }
+      },
+      "authorSignature": {
+        "keyId": "0c663505c8e1d524",
+        "signature": "rd2vwH6ugxGbusL2EybvvL20XU8mv9mXigOQQEPYOUU8yOgmX6wARJivLQoSzGnJXzTlg0YqRgru1h9HcqkMCA=="
+      },
+      "authorKeys": [
+        {
+          "keyId": "0c663505c8e1d524",
+          "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+        }
+      ]
     }
   ]
 }
