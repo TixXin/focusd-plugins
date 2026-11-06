@@ -6,5 +6,6 @@
     "todos",
     "productivity"
   ],
-  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-digest-1.2.0.zip"
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-digest-1.2.1.zip",
+  "path": "plugins/examples/dev.focusd.todo-digest"
 }

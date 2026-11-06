@@ -16,6 +16,10 @@ English summary at the end.
 
 一个仓库里放了多个插件时，给标签加前缀（例如 `clock-v1.2.0`），并在提交里写 `"tagPrefix": "clock-"`。
 
+## 市场上的说明和版本历史
+
+岛屿的插件市场在详情里显示插件的 `README.md` 和 `CHANGELOG.md`（各最多 16 KB，超出部分截掉）。构建索引时先在插件包里找这两个文件；包里没有（例如写进了 `.focusdignore`）时，到你的仓库读 Release 标签处 `path` 文件夹里的同名文件。它们和索引一起签名，跟着版本走：改了说明要发新版本才会更新。
+
 ## 第一次提交
 
 向本仓库开 PR，只新增一个文件 `plugins/<插件 id>.json`：
@@ -37,6 +41,7 @@ English summary at the end.
 | `categories` | 可选：`productivity`、`todos`、`developer`、`media`、`messages`、`information`、`utilities` |
 | `preRelease` | 可选，`true` 时收录 Pre-release |
 | `tagPrefix` | 可选，标签前缀 |
+| `path` | 可选，插件所在的文件夹（例如 `plugins/clock`），用来找 `README.md` 和 `CHANGELOG.md`；默认是仓库根目录 |
 
 PR 会自动检查：
 
@@ -71,5 +76,6 @@ PR 会自动检查：
 1. Build your plugin with `npm create fly-island-plugin@latest`, check it with `npx fly-island-plugin validate`, and pack it with `npx fly-island-plugin pack`.
 2. Publish a GitHub release in your repository: tag = manifest `version` (optionally prefixed with `v`), asset = `<id>-<version>.zip`.
 3. Open a pull request here that adds only `plugins/<id>.json` (fields above). You must own `repo`, or be a public member of the organization that owns it. Ids containing `focusd` are reserved.
+   Optional: `path`, the folder of the plugin in the repository, where the market looks for `README.md` / `CHANGELOG.md` when the package leaves them out (shown in the market's details, 16 KB each, fixed per version).
 4. Checks run automatically; a maintainer reads the source and merges. The plugin appears in the market within an hour.
 5. New versions: just publish a new release. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.

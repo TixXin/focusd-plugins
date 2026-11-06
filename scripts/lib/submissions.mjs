@@ -12,7 +12,9 @@ export const CATEGORIES = ["productivity", "todos", "developer", "media", "messa
 const ID_PATTERN = /^[a-z0-9][a-z0-9.-]*$/;
 const REPO_PATTERN = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
-const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved"]);
+const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved", "path"]);
+/** A folder inside the repository: segments of letters, digits, ".", "_" and "-", no ".." and no leading "/". */
+const FOLDER_PATTERN = /^(?!.*(^|\/)\.\.?(\/|$))[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/;
 
 export const isOfficial = (publisher) => publisher?.toLowerCase() === OFFICIAL_PUBLISHER.toLowerCase();
 export const ownerOf = (repo) => repo.split("/")[0];
@@ -22,7 +24,7 @@ export function submissionErrors(submission, fileName) {
   const errors = [];
   if (typeof submission !== "object" || submission === null || Array.isArray(submission)) return ["must be a JSON object."];
   for (const key of Object.keys(submission)) if (!KEYS.has(key)) errors.push(`unknown field "${key}".`);
-  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved } = submission;
+  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved, path: folder } = submission;
   if (typeof id !== "string" || id.length < 3 || id.length > 64 || !ID_PATTERN.test(id) || id.includes("..")) {
     errors.push(`"id" must be 3-64 characters of a-z, 0-9, "." and "-", like the plugin manifest.`);
   } else if (fileName !== `${id}.json`) {
@@ -43,6 +45,9 @@ export function submissionErrors(submission, fileName) {
   if (tagPrefix !== undefined && (typeof tagPrefix !== "string" || /\s/.test(tagPrefix))) errors.push(`"tagPrefix" must be a string without spaces.`);
   if (approved !== undefined && (typeof approved !== "string" || !VERSION_PATTERN.test(approved))) {
     errors.push(`"approved" must be the version a maintainer reviewed, like "1.2.0".`);
+  }
+  if (folder !== undefined && (typeof folder !== "string" || folder.length > 200 || !FOLDER_PATTERN.test(folder))) {
+    errors.push(`"path" must be a folder of the repository, like "plugins/clock", without ".." or a leading "/".`);
   }
   if (packageUrl !== undefined) {
     if (!isOfficial(publisher)) errors.push(`"package" (a fixed download address) is only for the official publisher; others publish GitHub releases.`);

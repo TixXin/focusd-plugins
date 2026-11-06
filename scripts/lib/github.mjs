@@ -48,6 +48,16 @@ export async function download(url, limit) {
   return Buffer.concat(chunks);
 }
 
+/** The text at `url`, or null when it answers 404; anything larger than `limit` bytes is refused. */
+export async function downloadTextIfPresent(url, limit) {
+  try {
+    return (await download(url, limit)).toString("utf8");
+  } catch (error) {
+    if (/ answered 404\.$/.test(error.message)) return null;
+    throw error;
+  }
+}
+
 /** The releases of `repo` ("owner/name"), newest first (one page of 50 is plenty for picking the latest). */
 export async function listReleases(repo) {
   const { status, body } = await api(`/repos/${repo}/releases?per_page=50`);

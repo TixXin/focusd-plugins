@@ -3,7 +3,9 @@
 // official plugin), checks it and lists it. A version that is already listed
 // is never downloaded again, and a listed version never changes. An automatic
 // update that asks for more (permissions, webview, runtime) is held back and
-// reported for review instead of being listed. Signing is scripts/sign.mjs.
+// reported for review instead of being listed. README.md / CHANGELOG.md come
+// from the package, or else from the repository at the release tag, and stay
+// with the version they were read for. Signing is scripts/sign.mjs.
 //
 // Usage: node scripts/build-index.mjs   (exit code 1 when a plugin had errors;
 // index.json is still written with everything that worked)
@@ -11,7 +13,7 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { api } from "./lib/github.mjs";
-import { fetchAndInspect, indexEntry, locatePackage, marketDetails, reviewReasons } from "./lib/packages.mjs";
+import { fetchAndInspect, indexEntry, locatePackage, marketDetails, repoDocs, reviewReasons } from "./lib/packages.mjs";
 import { compareVersions, loadSubmissions, submissionErrors } from "./lib/submissions.mjs";
 
 export const INDEX_PATH = "index.json";
@@ -25,7 +27,7 @@ function readIndex(root) {
 }
 
 /** One plugin: { entry|null, held|null, errors, warnings }. */
-export async function buildEntry(submission, previous, deps = { locatePackage, fetchAndInspect }) {
+export async function buildEntry(submission, previous, deps = { locatePackage, fetchAndInspect, repoDocs }) {
   const location = await deps.locatePackage(submission);
   if (!location) {
     const error = `No release of ${submission.repo} has a tag like ${submission.tagPrefix ?? ""}v1.2.3 with the asset ${submission.id}-<version>.zip.`;
@@ -37,9 +39,17 @@ export async function buildEntry(submission, previous, deps = { locatePackage, f
     return { entry: { ...previous, ...marketDetails(submission) }, held: null, errors: [], warnings: [`The newest release (${location.version}) is older than the listed ${previous.version}; keeping ${previous.version}.`] };
   }
 
-  const { zip, manifest, errors, warnings } = await deps.fetchAndInspect(submission, location);
+  const { zip, manifest, docs = {}, errors, warnings } = await deps.fetchAndInspect(submission, location);
   if (errors.length > 0) return { entry: previous ?? null, held: null, errors, warnings };
-  const entry = indexEntry(manifest, submission, location.url, zip);
+  let allDocs = docs;
+  if (!docs.readme || !docs.changelog) {
+    try {
+      allDocs = { ...(await deps.repoDocs(submission, location)), ...docs };
+    } catch (error) {
+      warnings.push(`README.md / CHANGELOG.md could not be read from ${submission.repo}: ${error.message}`);
+    }
+  }
+  const entry = indexEntry(manifest, submission, location.url, zip, allDocs);
   if (previous && compareVersions(entry.version, previous.version) === 0) {
     return { entry: { ...previous, ...marketDetails(submission) }, held: null, errors: [`${entry.version} is already listed with a different package; publish a new version.`], warnings };
   }

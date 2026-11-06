@@ -61,3 +61,12 @@ test("the newest published release with the right asset is picked", () => {
   assert.equal(pickRelease([release("v1.3.0", { prerelease: true })], { ...good, preRelease: true }).version, "1.3.0");
   assert.equal(pickRelease([release("v1.2.0", { asset: false })], good), null);
 });
+
+test("path must be a folder inside the repository", () => {
+  for (const folder of ["plugins/clock", "src", "a.b/c_d-e"]) {
+    assert.deepEqual(submissionErrors({ ...good, path: folder }, "com.example.clock.json"), [], folder);
+  }
+  for (const folder of ["/plugins", "../x", "a/../b", "a//b", "a/", ".", "a b", 3]) {
+    assert.match(submissionErrors({ ...good, path: folder }, "com.example.clock.json").join(), /"path"/, String(folder));
+  }
+});

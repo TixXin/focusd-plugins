@@ -1,16 +1,20 @@
 // Finds a submission's package, checks it the way the island and the market
 // do (fly-island-plugin validate), and turns it into an index entry.
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { download, listReleases } from "./github.mjs";
+import { download, downloadTextIfPresent, listReleases } from "./github.mjs";
 import { pickRelease } from "./submissions.mjs";
 import { extractZip } from "./zip.mjs";
 
 export const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
+/** Longest README / CHANGELOG text carried in the index (MAX_MARKET_TEXT in the island's plugin_host/market.rs). */
+export const MAX_MARKET_TEXT = 16 * 1024;
+const MAX_DOC_BYTES = 256 * 1024;
+const DOCS = { readme: "README.md", changelog: "CHANGELOG.md" };
 const MANIFEST = "focusd-plugin.json";
 const CLI = path.join(path.dirname(fileURLToPath(import.meta.resolve("fly-island-plugin/package.json"))), "bin", "fly-island-plugin.mjs");
 
@@ -27,11 +31,43 @@ function runCli(args) {
   return { ok: result.status === 0, output: `${result.stdout ?? ""}${result.stderr ?? ""}`.trim() };
 }
 
+/** Trimmed text, cut at a line end to MAX_MARKET_TEXT characters; null when empty. Same as the island's build-plugin-index.mjs. */
+export function marketText(text, limit = MAX_MARKET_TEXT) {
+  const trimmed = (text ?? "").replace(/\r\n/g, "\n").trim();
+  if (!trimmed) return null;
+  if (trimmed.length <= limit) return trimmed;
+  const cut = trimmed.slice(0, limit);
+  const lineEnd = cut.lastIndexOf("\n");
+  return `${(lineEnd > 0 ? cut.slice(0, lineEnd) : cut).trimEnd()}\n\n…`;
+}
+
+/** { readme?, changelog? } from README.md / CHANGELOG.md read by `read(fileName)` (null when missing). */
+async function collectDocs(read) {
+  const docs = {};
+  for (const [key, fileName] of Object.entries(DOCS)) {
+    const text = marketText(await read(fileName));
+    if (text) docs[key] = text;
+  }
+  return docs;
+}
+
+/**
+ * README.md / CHANGELOG.md for the market page when the package leaves them out
+ * (.focusdignore): read from the repository at the release tag (at main for a
+ * fixed "package" address), in the submission's "path" folder.
+ */
+export async function repoDocs(submission, location) {
+  const ref = location.tag ?? "HEAD";
+  const folder = submission.path ? `${submission.path}/` : "";
+  return collectDocs((fileName) =>
+    downloadTextIfPresent(`https://raw.githubusercontent.com/${submission.repo}/${encodeURIComponent(ref)}/${folder}${fileName}`, MAX_DOC_BYTES));
+}
+
 /**
  * Unpacks and validates a package. `expected` is { id, version|null }.
- * Returns { manifest, errors, warnings }.
+ * Returns { manifest, docs: { readme?, changelog? }, errors, warnings }.
  */
-export function inspectPackage(zip, expected) {
+export async function inspectPackage(zip, expected) {
   const errors = [];
   const warnings = [];
   const dir = mkdtempSync(path.join(tmpdir(), "focusd-plugin-"));
@@ -68,16 +104,20 @@ export function inspectPackage(zip, expected) {
       }
       if (!same) warnings.push("Packing the unpacked files again gives a different zip; build the release asset with `fly-island-plugin pack` so it can be reproduced.");
     }
-    return { manifest, errors, warnings };
+    const docs = await collectDocs((fileName) => {
+      const file = path.join(dir, "plugin", fileName);
+      return existsSync(file) ? readFileSync(file, "utf8") : null;
+    });
+    return { manifest, docs, errors, warnings };
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 }
 
-/** Downloads and inspects the package at `location` ({ url, version }). Returns { zip, manifest, errors, warnings }. */
+/** Downloads and inspects the package at `location` ({ url, version }). Returns { zip, manifest, docs, errors, warnings }. */
 export async function fetchAndInspect(submission, location) {
   const zip = await download(location.url, MAX_PACKAGE_BYTES);
-  return { zip, ...inspectPackage(zip, { id: submission.id, version: location.version }) };
+  return { zip, ...(await inspectPackage(zip, { id: submission.id, version: location.version })) };
 }
 
 /** What the plugin needs installed, like runtime_requirement in the island's plugin_host/manifest.rs. */
@@ -101,7 +141,7 @@ export function marketDetails(submission) {
 }
 
 /** The index entry (same shape as MarketEntry in the island's plugin_host/market.rs). */
-export function indexEntry(manifest, submission, url, zip) {
+export function indexEntry(manifest, submission, url, zip, docs = {}) {
   return {
     id: manifest.id,
     name: manifest.name,
@@ -115,6 +155,8 @@ export function indexEntry(manifest, submission, url, zip) {
     runtime: runtimeRequirement(manifest.runtime),
     ...((manifest.contributes?.views ?? []).some((view) => view.template === "webview") ? { webview: true } : {}),
     ...marketDetails(submission),
+    ...(docs.readme ? { readme: docs.readme } : {}),
+    ...(docs.changelog ? { changelog: docs.changelog } : {}),
     download: { url, sha256: sha256(zip), size: zip.length },
   };
 }

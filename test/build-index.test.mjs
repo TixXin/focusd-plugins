@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildEntry } from "../scripts/build-index.mjs";
-import { indexEntry, reviewReasons } from "../scripts/lib/packages.mjs";
+import { indexEntry, marketText, MAX_MARKET_TEXT, reviewReasons } from "../scripts/lib/packages.mjs";
 
 const submission = { id: "com.example.clock", repo: "example/clock", publisher: "example", categories: ["utilities"] };
 const manifest = (version, permissions = [], extra = {}) => ({
@@ -16,14 +16,18 @@ const manifest = (version, permissions = [], extra = {}) => ({
 const zip = Buffer.from("zip bytes");
 const listed = (version, permissions = []) => indexEntry(manifest(version, permissions), submission, `https://example.com/${version}.zip`, zip);
 
-function deps(version, permissions = [], extra = {}) {
-  const calls = { fetched: 0 };
+function deps(version, permissions = [], extra = {}, docs = {}, repo = {}) {
+  const calls = { fetched: 0, repoDocs: [] };
   return {
     calls,
-    locatePackage: async () => ({ url: `https://example.com/${version}.zip`, version }),
+    locatePackage: async () => ({ url: `https://example.com/${version}.zip`, version, tag: `v${version}` }),
     fetchAndInspect: async () => {
       calls.fetched += 1;
-      return { zip, manifest: manifest(version, permissions, extra), errors: [], warnings: [] };
+      return { zip, manifest: manifest(version, permissions, extra), docs, errors: [], warnings: [] };
+    },
+    repoDocs: async (submission, location) => {
+      calls.repoDocs.push(location.tag);
+      return repo;
     },
   };
 }
@@ -75,4 +79,40 @@ test("review reasons cover permissions, webview and runtime", () => {
   const after = { ...before, permissions: ["media:read"], webview: true, runtime: "exe" };
   assert.equal(reviewReasons(before, after).length, 3);
   assert.deepEqual(reviewReasons(before, before), []);
+});
+
+test("README and CHANGELOG come from the package, else from the repository at the release tag", async () => {
+  const packed = deps("1.0.0", [], {}, { readme: "# In the zip", changelog: "## 1.0.0" });
+  const fromZip = await buildEntry(submission, undefined, packed);
+  assert.equal(fromZip.entry.readme, "# In the zip");
+  assert.equal(fromZip.entry.changelog, "## 1.0.0");
+  assert.deepEqual(packed.calls.repoDocs, []);
+
+  const ignored = deps("1.1.0", [], {}, { readme: "# In the zip" }, { readme: "# In the repo", changelog: "## 1.1.0" });
+  const mixed = await buildEntry(submission, undefined, ignored);
+  assert.equal(mixed.entry.readme, "# In the zip");
+  assert.equal(mixed.entry.changelog, "## 1.1.0");
+  assert.deepEqual(ignored.calls.repoDocs, ["v1.1.0"]);
+});
+
+test("docs that cannot be read only warn, and a listed version keeps its docs", async () => {
+  const d = deps("1.0.0");
+  d.repoDocs = async () => { throw new Error("rate limited"); };
+  const result = await buildEntry(submission, undefined, d);
+  assert.equal(result.entry.version, "1.0.0");
+  assert.equal(result.entry.readme, undefined);
+  assert.match(result.warnings.join(), /rate limited/);
+
+  const previous = { ...listed("1.0.0"), readme: "# Kept" };
+  const again = deps("1.0.0");
+  const kept = await buildEntry(submission, previous, again);
+  assert.equal(kept.entry.readme, "# Kept");
+  assert.equal(again.calls.fetched, 0);
+});
+
+test("market texts are trimmed and cut at a line end", () => {
+  assert.equal(marketText("  \r\n# Title\r\n\r\n"), "# Title");
+  assert.equal(marketText("   "), null);
+  const long = marketText(`${"a".repeat(MAX_MARKET_TEXT - 5)}\n${"b".repeat(100)}`);
+  assert.ok(long.length <= MAX_MARKET_TEXT + 3 && long.endsWith("\n\n…") && !long.includes("b"));
 });

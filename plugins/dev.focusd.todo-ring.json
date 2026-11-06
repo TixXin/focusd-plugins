@@ -6,5 +6,6 @@
     "todos",
     "productivity"
   ],
-  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.0.0.zip"
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.0.1.zip",
+  "path": "plugins/examples/dev.focusd.todo-ring"
 }
