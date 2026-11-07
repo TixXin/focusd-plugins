@@ -1,0 +1,18 @@
+{
+  "id": "dev.focusd.system-monitor",
+  "repo": "TixXin/fly-island",
+  "publisher": "TixXin",
+  "categories": [
+    "utilities",
+    "information"
+  ],
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.system-monitor-1.0.1.zip",
+  "path": "plugins/examples/dev.focusd.system-monitor",
+  "signingKeys": [
+    {
+      "keyId": "0c663505c8e1d524",
+      "publicKey": "2iitOvXp
+Sh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+    }
+  ]
+}
