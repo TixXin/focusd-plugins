@@ -4,18 +4,21 @@
     {
       "id": "dev.focusd.github-issues",
       "name": {
-        "zh-CN": "GitHub Issue（示例）",
-        "en": "GitHub issues (example)"
+        "zh-CN": "GitHub Issue",
+        "en": "GitHub issues"
       },
       "description": {
-        "zh-CN": "在岛上加一个页面，列出一个公开仓库的未关闭 issue，点一条就在浏览器里打开。不需要令牌，仓库在设置里填。演示列表模板。用 Windows 自带的 PowerShell 运行。",
-        "en": "Adds an island page listing the open issues of a public repository; click one to open it in the browser. No token needed; set the repository in the settings. Shows the list template. Runs on the PowerShell built into Windows."
+        "zh-CN": "在岛上加一个页面，列出一个或多个 GitHub 仓库的未关闭 issue，每个仓库一组，点一条就在浏览器里打开。不登录就能看公开仓库；可以选择用 GitHub 账号登录，提高请求次数。用 Windows 自带的 PowerShell 运行。",
+        "en": "Adds an island page listing the open issues of one or more GitHub repositories, one group each; click one to open it in the browser. Public repositories work without signing in; signing in with GitHub is optional and raises the request limit. Runs on the PowerShell built into Windows."
       },
-      "version": "1.0.1",
+      "version": "1.1.0",
       "apiVersion": 2,
       "author": "TixXin",
-      "homepage": "https://github.com/TixXin/fly-island/tree/dev/plugins/examples/dev.focusd.github-issues",
+      "homepage": "https://github.com/TixXin/fly-island/tree/main/plugins/examples/dev.focusd.github-issues",
       "permissions": [],
+      "optionalPermissions": [
+        "secrets"
+      ],
       "runtime": "powershell",
       "publisher": "TixXin",
       "repo": "TixXin/fly-island",
@@ -23,16 +26,16 @@
         "developer",
         "information"
       ],
-      "readme": "# GitHub Issues（示例）\n\n在岛上列出一个公开仓库里还没关闭的 issue。\n\n## 怎么用\n\n- 在插件设置里填写仓库，格式是 `owner/name`，例如 `TixXin/fly-island`。\n- 岛上会多一个页面列出未关闭的 issue，点一条就在浏览器里打开。\n- 运行命令「立即刷新」可以马上更新；平时按设置里的间隔刷新，只在页面打开时才去请求。\n\n## 设置\n\n- **仓库**：要查看的公开仓库。\n- **刷新间隔（分钟）**。\n\n## 说明\n\n不需要 GitHub 令牌，所以只能看公开仓库，并受 GitHub 匿名访问的频率限制。\n\n## English\n\nLists the open issues of a public GitHub repository on an island page; click one to open it in the browser. No token needed; set the repository in the plugin's settings.",
-      "changelog": "# 更新记录\n\n## 1.0.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本。",
+      "readme": "# GitHub Issues\n\n在岛上列出一个或多个 GitHub 仓库里还没关闭的 issue，每个仓库一组。\n\n## 怎么用\n\n- 在插件设置里填写仓库，格式是 `owner/name`，多个用逗号分隔，例如 `TixXin/fly-island, owner/other`，最多 20 个。\n- 岛上会多一个页面，每个仓库一组，组名是 `owner/name - N open`，点一条就在浏览器里打开。\n- 某个仓库出错（名字写错、找不到、次数用完）只影响那一组，其他仓库照常显示。\n- 运行命令「立即刷新」可以马上更新；平时按设置里的间隔刷新，只在页面打开时才去请求。\n\n## 请求次数\n\n页面最上面一行显示现在是匿名还是已登录，以及这个小时还剩多少次请求。\n\n- 不登录时，GitHub 每小时只给 60 次，而且按网络出口计算（走代理或公司网络时可能和别人共用）。每个仓库每次刷新用 1 次，所以仓库多时插件会自动拉长刷新间隔，保证每小时不超过 50 次：例如 20 个仓库至少 24 分钟刷新一次。\n- 次数用完时，各组会显示什么时候重置，到时再试。\n\n## 用 GitHub 账号登录（可选，默认关闭）\n\n1. 在插件设置里打开「用 GitHub 账号登录」。\n2. 在插件页面点「登录 GitHub」（或运行命令「登录 GitHub」）。第一次会询问是否允许「密钥」权限，令牌要存进 Windows 凭据管理器。\n3. 页面显示一个验证码（已复制到剪贴板），点它打开 github.com/login/device，粘贴验证码并授权。授权后页面自动更新。\n\n登录后每小时 5000 次请求。插件只申请读取 issue 和仓库基本信息，不能修改任何东西。\n\n- **私有仓库**：登录只能看到装了这个 GitHub App 的仓库。要看私有仓库，先把 App 安装到对应的账号或组织上。\n- **退出**：点「退出登录」，或关掉设置里的开关，令牌会从凭据管理器删除，改回匿名访问。\n- 令牌失效或过期时，插件自动改回匿名访问，并提示重新登录。\n- 插件不会读取本机 `gh` 命令行的令牌：它通常带仓库的写权限，一个只看 issue 的插件不该拿来用。\n\n## 设置\n\n- **仓库**：要查看的仓库，多个用逗号分隔。\n- **刷新间隔（分钟）**：仓库多时会自动拉长。\n- **用 GitHub 账号登录**：默认关闭。\n- **GitHub App Client ID**：留空即可；想用自己注册的 GitHub App 登录时才填。\n\n## English\n\nLists the open issues of one or more GitHub repositories on an island page, one group per repository; click one to open it in the browser. Set the repositories (`owner/name`, comma separated, up to 20) in the plugin's settings. Without signing in GitHub allows 60 calls an hour, so the refresh interval grows with the number of repositories; the top row shows the calls left. Signing in with GitHub (off by default) uses a code you confirm in the browser, raises the limit to 5000 an hour, asks only for issue read access, and keeps the token in the Windows Credential Manager. Private repositories need the GitHub App installed on their account or organization.",
+      "changelog": "# 更新记录\n\n## 1.1.0\n\n- 名字去掉「示例」。\n- 可以填多个仓库（逗号分隔，最多 20 个），每个仓库一组；一个仓库出错只影响那一组。\n- 页面最上面显示匿名还是已登录，以及这个小时还剩多少次请求；仓库多时自动拉长刷新间隔，次数用完时显示重置时间。\n- 可选用 GitHub 账号登录（默认关闭）：在浏览器里输入验证码授权，令牌存进 Windows 凭据管理器（用到时才询问「密钥」权限），登录后每小时 5000 次请求。\n- 用 ETag 请求，issue 没有变化时不重新下载。\n\n## 1.0.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本。",
       "download": {
-        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.github-issues-1.0.1.zip",
-        "sha256": "26945f9952f932054b71fab91235fa81c0df83b6e45c9b3301045848d14d2945",
-        "size": 4353
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.github-issues-1.1.0.zip",
+        "sha256": "dd9cdb9647410688912e6e803469366d29573b29d89c61707b00efc51144e371",
+        "size": 13402
       },
       "authorSignature": {
         "keyId": "0c663505c8e1d524",
-        "signature": "Lk2yLTZoM4F26BDRCiTElhl+ZXvImW3bGxYptI28vBtFF9+l5iZ+MnwniBfJoe7U4h+nTlx+f8is0ixoYp/3Dg=="
+        "signature": "6IDxH7HTqpBtd36GG6eF/pvPdxnn1F3/aQdA0viI/gXaKgfBV/0t+UbY+FRmyd/V1uq8lVBMFsWnjam8ZiNFBg=="
       },
       "authorKeys": [
         {
