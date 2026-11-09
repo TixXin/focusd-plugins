@@ -1,0 +1,49 @@
+# Counts the 👍 on each plugin's discussion every hour and writes stars.json for
+# the market (scripts/update-stars.mjs); opens the discussion of a newly listed
+# plugin. Shares the index workflow's queue, so the two never push at once.
+name: Update likes
+
+on:
+  schedule:
+    - cron: "47 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "index.json"
+      - "scripts/update-stars.mjs"
+      - ".github/workflows/update-stars.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: update-index
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  discussions: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Count likes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/update-stars.mjs
+      - name: Commit
+        run: |
+          git add stars.json
+          if git diff --cached --quiet; then
+            echo "The likes did not change."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(stars): update the plugin likes"
+          git pull --rebase --quiet
+          git push
