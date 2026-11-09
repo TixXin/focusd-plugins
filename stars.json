@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-09T06:49:02.865Z",
+  "plugins": {
+    "dev.focusd.github-issues": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/2"
+    },
+    "dev.focusd.now-playing": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/3"
+    },
+    "dev.focusd.pomodoro": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/4"
+    },
+    "dev.focusd.system-monitor": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/5"
+    },
+    "dev.focusd.todo-digest": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/6"
+    },
+    "dev.focusd.todo-ring": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/7"
+    }
+  }
+}
