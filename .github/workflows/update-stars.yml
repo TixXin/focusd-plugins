@@ -27,7 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
+      # main as it is when the run starts, not when it was queued: a run waiting
+      # behind another would otherwise count from an old stars.json and fail to push.
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: 22
