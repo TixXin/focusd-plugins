@@ -5,7 +5,7 @@
   "categories": [
     "media"
   ],
-  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.2.0.zip",
+  "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.3.0.zip",
   "path": "plugins/examples/dev.focusd.now-playing",
   "signingKeys": [
     {
