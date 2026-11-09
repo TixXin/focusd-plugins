@@ -93,7 +93,7 @@
         "zh-CN": "按 Ctrl+Alt+P 或在待办上右键开始一个番茄钟，计时显示在岛上的番茄钟页面和折叠条上，结束时在岛上提示，可以点“再来一轮”。完成的轮数保存在插件存储里。用 Windows 自带的 PowerShell 运行。",
         "en": "Press Ctrl+Alt+P or right-click a todo to start a pomodoro; the countdown shows on its island page and the collapsed bar, and when it ends the island shows a message with One more round. Finished rounds are kept in plugin storage. Runs on the PowerShell built into Windows."
       },
-      "version": "1.1.1",
+      "version": "1.1.2",
       "apiVersion": 2,
       "author": "TixXin",
       "homepage": "https://github.com/TixXin/fly-island/tree/dev/plugins/examples/dev.focusd.pomodoro",
@@ -108,15 +108,15 @@
         "productivity"
       ],
       "readme": "# 番茄钟（示例）\n\n在岛上计时一个番茄钟，结束时提醒你休息。\n\n## 怎么用\n\n- 按 **Ctrl+Alt+P** 开始，或者在待办上右键选择「为这条待办开始番茄钟」。\n- 计时显示在岛上的「番茄钟」页面和折叠条上。\n- 一轮结束后岛上会提示，可以点「再来一轮」。完成的轮数保存在插件存储里，重启后还在。\n\n## 设置\n\n- **每轮时长（分钟）**：默认 25。\n\n## 权限\n\n- `island:notify`：在岛上显示结束提示。\n- `todos:read`：读取你右键的那条待办的标题。\n\n## 示例演示了什么\n\n命令与全局快捷键、待办右键菜单、状态模板页面、折叠条状态文字、插件存储。\n\n## English\n\nStarts a pomodoro with Ctrl+Alt+P or from a todo's right-click menu. The countdown shows on its island page and the collapsed bar, and the island tells you when it ends. Finished rounds are kept in plugin storage.",
-      "changelog": "# 更新记录\n\n## 1.1.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.1.0\n\n- 新增岛上的「番茄钟」页面和折叠条上的倒计时。\n\n## 1.0.0\n\n- 第一个版本：快捷键和待办右键菜单开始番茄钟，结束时在岛上提醒，记录完成的轮数。",
+      "changelog": "# 更新记录\n\n## 1.1.2\n\n- 修复：折叠条上的倒计时不走，一轮到时间也不提醒，要等岛屿有别的动静才更新。插件等岛屿消息时的超时在 Windows PowerShell 5.1 上不生效（同系统监控 1.0.2 的问题）。现在每秒更新，到点就结束这一轮。\n\n## 1.1.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.1.0\n\n- 新增岛上的「番茄钟」页面和折叠条上的倒计时。\n\n## 1.0.0\n\n- 第一个版本：快捷键和待办右键菜单开始番茄钟，结束时在岛上提醒，记录完成的轮数。",
       "download": {
-        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.pomodoro-1.1.1.zip",
-        "sha256": "111712896a57ccfc221b9eb052cb25d5603a50f96135be2696f5286d16937efe",
-        "size": 5162
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.pomodoro-1.1.2.zip",
+        "sha256": "a53c8abf2be132bb0705459de5be0aa2fc102ebcc5dc7971f30cb54b52c1914b",
+        "size": 5348
       },
       "authorSignature": {
         "keyId": "0c663505c8e1d524",
-        "signature": "CiSBRWntx0ru5cJ8Fgt8MyfPkx1sZSlnXL0DuS92Dw+Ph+3jKicvqYwPAvVlJFrv99yChO/lHt7KjtSOsOrmDQ=="
+        "signature": "nwuCm+C26odoVka/ko4miA9r+1cumpNQJpjXdR/FUrgs/ou6cyYAkiFnZu2bhFg5TJ0+zhgVFKOGgET3FR6lAw=="
       },
       "authorKeys": [
         {
