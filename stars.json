@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-09T06:49:02.865Z",
+  "updatedAt": "2026-11-09T17:50:03.921Z",
   "plugins": {
     "dev.focusd.github-issues": {
       "count": 0,
@@ -15,7 +15,7 @@
       "url": "https://github.com/TixXin/focusd-plugins/discussions/4"
     },
     "dev.focusd.system-monitor": {
-      "count": 0,
+      "count": 1,
       "url": "https://github.com/TixXin/focusd-plugins/discussions/5"
     },
     "dev.focusd.todo-digest": {
