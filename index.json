@@ -54,7 +54,7 @@
         "zh-CN": "运行命令「显示正在播放」时在岛上提示当前歌曲的歌名和歌手；打开设置「换歌时提示」后，换歌时也提示（默认关闭：岛屿的音乐页和收起条已经显示正在播放）。第一次读取播放信息时，岛上会先问你是否允许。用 Windows 自带的 PowerShell 运行。",
         "en": "Shows the playing song's title and artist on the island when you run Show now playing, and on every track change once \"Notify on track change\" is on (off by default: the island's music page and collapsed bar already show the song). The first time it reads what is playing, the island asks you first. Runs on the PowerShell built into Windows."
       },
-      "version": "1.1.1",
+      "version": "1.2.0",
       "apiVersion": 2,
       "author": "TixXin",
       "homepage": "https://github.com/TixXin/fly-island/tree/dev/plugins/examples/dev.focusd.now-playing",
@@ -68,16 +68,16 @@
       "categories": [
         "media"
       ],
-      "readme": "# 正在播放\n\n运行命令时在岛上提示正在播放的歌曲；需要的话也可以在换歌时提示。\n\n## 怎么用\n\n- 运行命令「显示正在播放」，岛上提示一次歌名和歌手。\n- 插件设置里打开「换歌时提示」（默认关闭），换歌时也提示。默认关闭是因为岛屿的音乐页和收起条已经显示正在播放的歌；开了「展开面板」或「横幅」新消息提示时，每首歌都会多一张消息卡片。\n\n## 权限\n\n- `island:notify`：在岛上显示提示。\n- `media:read`：读取正在播放的媒体信息。这是敏感权限，第一次读取时岛上会先问你是否允许。「换歌时提示」关着时插件不订阅播放变化，所以要到第一次运行命令时才会问。\n\n## 给插件作者\n\n这个插件的源码也可以当例子看：敏感权限的使用前确认、订阅媒体变化事件、插件设置、岛上提示。\n\n## English\n\nShows the playing song on the island when you run Show now playing, and on every track change once \"Notify on track change\" is on in the plugin's settings (off by default: the island's music page and collapsed bar already show the song). Reading media is a sensitive permission, so the island asks you the first time.",
-      "changelog": "# 更新记录\n\n## 1.1.1\n\n- 名字去掉「示例」。功能没有变化。\n\n## 1.1.0\n\n- 换歌时不再默认在岛上弹「正在播放」：岛屿的音乐页和收起条已经显示正在播放的歌，开了「展开面板」或「横幅」新消息提示时，它还会变成一张消息卡片。需要的话在插件设置里打开「换歌时提示」。命令「显示正在播放」照常可用。\n- 设置关闭时不订阅播放变化，所以不会一装上就询问播放信息的权限。\n- 换上修好的 PowerShell 读取：等消息的超时在 Windows PowerShell 5.1 上恢复生效。\n\n## 1.0.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本。",
+      "readme": "# 正在播放\n\n运行命令时在岛上提示正在播放的歌曲；需要的话也可以在换歌时提示。\n\n## 怎么用\n\n- 运行命令「显示正在播放」，岛上提示一次歌名和歌手，旁边是正在播放的音乐软件的图标。\n- 插件设置里打开「换歌时提示」（默认关闭），换歌时也提示。默认关闭是因为岛屿的音乐页和收起条已经显示正在播放的歌；开了「展开面板」或「横幅」新消息提示时，每首歌都会多一张消息卡片。\n\n## 权限\n\n- `island:notify`：在岛上显示提示。\n- `media:read`：读取正在播放的媒体信息。这是敏感权限，第一次读取时岛上会先问你是否允许。「换歌时提示」关着时插件不订阅播放变化，所以要到第一次运行命令时才会问。\n\n## 给插件作者\n\n这个插件的源码也可以当例子看：敏感权限的使用前确认、订阅媒体变化事件、插件设置、岛上提示，以及提示的样式：`icon: \"media\"`（音乐软件的图标）和 `layout: \"inline\"`（不带卡片，能力 `notifyStyle`）。\n\n## English\n\nShows the playing song on the island when you run Show now playing, and on every track change once \"Notify on track change\" is on in the plugin's settings (off by default: the island's music page and collapsed bar already show the song). Reading media is a sensitive permission, so the island asks you the first time.",
+      "changelog": "# 更新记录\n\n## 1.2.0\n\n- 提示改成歌名和歌手，旁边是正在播放的音乐软件的图标，不再写「Now playing / 正在播放」。新消息「展开面板」里只有这一条时，没有「新消息」标题和卡片，整个岛就是这条提示。需要支持 `notifyStyle` 的岛屿；旧版岛屿照常显示歌名和歌手，用插件图标。\n\n## 1.1.1\n\n- 名字去掉「示例」。功能没有变化。\n\n## 1.1.0\n\n- 换歌时不再默认在岛上弹「正在播放」：岛屿的音乐页和收起条已经显示正在播放的歌，开了「展开面板」或「横幅」新消息提示时，它还会变成一张消息卡片。需要的话在插件设置里打开「换歌时提示」。命令「显示正在播放」照常可用。\n- 设置关闭时不订阅播放变化，所以不会一装上就询问播放信息的权限。\n- 换上修好的 PowerShell 读取：等消息的超时在 Windows PowerShell 5.1 上恢复生效。\n\n## 1.0.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本。",
       "download": {
-        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.1.1.zip",
-        "sha256": "73beb80dc85c3dc6cc3015691d7d97053fd268f4fe1888a3cb031f2f5e4f32c4",
-        "size": 3724
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.now-playing-1.2.0.zip",
+        "sha256": "797b36e8066aa724ea3460b5d7e7870f7702fa64ceb4c4ab08b699b57e3b4d4c",
+        "size": 3661
       },
       "authorSignature": {
         "keyId": "0c663505c8e1d524",
-        "signature": "wuQpqEPkJSVmrZ2PMzR9WIncmhYLlv2JpTehX22vryG4WcHu/XK9IH1Kk025dyMkqtpOOd3ObN/wozqX1r5HAg=="
+        "signature": "K6nORQNBtNC9G0+pnWEm6qaN0RuelCDtbw9j6lWvXCzI6TLu8h6S4o5ZT6rVAQwFRELBDl4CY7TfjmLJVaBoCQ=="
       },
       "authorKeys": [
         {
