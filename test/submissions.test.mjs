@@ -14,6 +14,7 @@ test("the file name, publisher, categories and reserved ids are checked", () => 
   assert.match(submissionErrors({ ...good, categories: ["games"] }, "com.example.clock.json").join(), /categories/);
   const reserved = { ...good, id: "com.focusd.clock" };
   assert.match(submissionErrors(reserved, "com.focusd.clock.json").join(), /reserved/);
+  assert.match(submissionErrors({ ...good, id: "com.fuyu.clock" }, "com.fuyu.clock.json").join(), /reserved/);
   assert.match(submissionErrors({ ...good, extra: 1 }, "com.example.clock.json").join(), /unknown field "extra"/);
 });
 

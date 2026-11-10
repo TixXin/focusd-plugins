@@ -1,5 +1,5 @@
 // Finds a submission's package, checks it the way the island and the market
-// do (fly-island-plugin validate), and turns it into an index entry.
+// do (fuyu-plugin validate), and turns it into an index entry.
 import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,8 +17,9 @@ export const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
 export const MAX_MARKET_TEXT = 16 * 1024;
 const MAX_DOC_BYTES = 256 * 1024;
 const DOCS = { readme: "README.md", changelog: "CHANGELOG.md" };
-const MANIFEST = "focusd-plugin.json";
-const CLI = path.join(path.dirname(fileURLToPath(import.meta.resolve("fly-island-plugin/package.json"))), "bin", "fly-island-plugin.mjs");
+/** The manifest name since the rename first, then the name plugins made before it carry; the island reads them in this order. */
+const MANIFESTS = ["fuyu-plugin.json", "focusd-plugin.json"];
+const CLI = path.join(path.dirname(fileURLToPath(import.meta.resolve("fuyu-plugin/package.json"))), "bin", "fuyu-plugin.mjs");
 
 export const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
 
@@ -55,7 +56,7 @@ async function collectDocs(read) {
 
 /**
  * README.md / CHANGELOG.md for the market page when the package leaves them out
- * (.focusdignore): read from the repository at the release tag (at main for a
+ * (.fuyuignore, or .focusdignore before the rename): read from the repository at the release tag (at main for a
  * fixed "package" address), in the submission's "path" folder.
  */
 export async function repoDocs(submission, location) {
@@ -79,18 +80,19 @@ export async function inspectPackage(zip, expected) {
     } catch (error) {
       return { manifest: null, errors: [error.message], warnings };
     }
+    const manifestName = MANIFESTS.find((name) => existsSync(path.join(dir, "plugin", name))) ?? MANIFESTS[0];
     let manifest;
     try {
-      manifest = JSON.parse(readFileSync(path.join(dir, "plugin", MANIFEST), "utf8").trimStart());
+      manifest = JSON.parse(readFileSync(path.join(dir, "plugin", manifestName), "utf8").trimStart());
     } catch {
-      return { manifest: null, errors: [`The package has no readable ${MANIFEST} at its root.`], warnings };
+      return { manifest: null, errors: [`The package has no readable ${MANIFESTS.join(" or ")} at its root.`], warnings };
     }
     const validation = runCli(["validate", path.join(dir, "plugin")]);
     for (const line of validation.output.split(/\r?\n/)) {
       if (line.startsWith("error: ")) errors.push(line.slice(7));
       else if (line.startsWith("warning: ")) warnings.push(line.slice(9));
     }
-    if (!validation.ok && errors.length === 0) errors.push(`fly-island-plugin validate failed: ${validation.output}`);
+    if (!validation.ok && errors.length === 0) errors.push(`fuyu-plugin validate failed: ${validation.output}`);
     // A credential in a public package is leaked for good; the author has to revoke it and publish again.
     for (const { file, line, kind } of scanFolder(path.join(dir, "plugin"))) {
       errors.push(`${file}:${line} looks like a ${kind}. Revoke it, remove it from the package and publish a new version.`);
@@ -100,6 +102,10 @@ export async function inspectPackage(zip, expected) {
       errors.push(`The manifest version is "${manifest.version}", but the release tag says ${expected.version}.`);
     }
     if (errors.length === 0) {
+      // `fuyu-plugin pack` adds a copy of fuyu-plugin.json as focusd-plugin.json right after it, for islands
+      // from before the rename. Left in the folder, the copy would sort first and change the repacked zip.
+      const [current, legacy] = MANIFESTS.map((name) => path.join(dir, "plugin", name));
+      if (existsSync(current) && existsSync(legacy) && readFileSync(current).equals(readFileSync(legacy))) rmSync(legacy);
       const packed = runCli(["pack", path.join(dir, "plugin"), "--out", path.join(dir, "repacked")]);
       const file = path.join(dir, "repacked", `${manifest.id}-${manifest.version}.zip`);
       let same = false;
@@ -108,7 +114,7 @@ export async function inspectPackage(zip, expected) {
       } catch {
         same = false;
       }
-      if (!same) warnings.push("Packing the unpacked files again gives a different zip; build the release asset with `fly-island-plugin pack` so it can be reproduced.");
+      if (!same) warnings.push("Packing the unpacked files again gives a different zip; build the release asset with `fuyu-plugin pack` so it can be reproduced.");
     }
     const docs = await collectDocs((fileName) => {
       const file = path.join(dir, "plugin", fileName);

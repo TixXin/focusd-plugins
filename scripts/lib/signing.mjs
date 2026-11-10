@@ -1,10 +1,10 @@
 // Author signatures of plugin packages, checked the same way as the island
 // (src-tauri/src/plugin_host/author_signing.rs in TixXin/fuyu) and made by
-// `fly-island-plugin pack --sign`: Ed25519 over
+// `fuyu-plugin pack --sign`: Ed25519 over
 // "focusd-plugin-package/1\n<id>\n<version>\n<sha256 of the zip>", published as
 // <id>-<version>.zip.sig ({ keyId, signature }) next to the zip.
 //
-// A key change (`fly-island-plugin keys rotate`) lists the new key with
+// A key change (`fuyu-plugin keys rotate`) lists the new key with
 // endorsedBy: the old key's signature of "focusd-plugin-key/1\n<id>\n<new keyId>\n<new publicKey>".
 // The island takes updates on an endorsed key without asking.
 import { createHash, createPublicKey, verify } from "node:crypto";
@@ -41,15 +41,15 @@ export function verifyEndorsement(id, key, keys) {
 
 /** Problems with a submission's "signingKeys" for plugin `id` (empty when fine). */
 export function signingKeyErrors(keys, id) {
-  if (!Array.isArray(keys) || keys.length === 0 || keys.length > 5) return [`"signingKeys" must list 1-5 keys printed by "fly-island-plugin keygen".`];
+  if (!Array.isArray(keys) || keys.length === 0 || keys.length > 5) return [`"signingKeys" must list 1-5 keys printed by "fuyu-plugin keygen".`];
   const errors = [];
   for (const key of keys) {
     const raw = typeof key?.publicKey === "string" ? Buffer.from(key.publicKey, "base64") : Buffer.alloc(0);
     const extra = Object.keys(key ?? {}).filter((name) => !["keyId", "publicKey", "endorsedBy"].includes(name));
     if (raw.length !== 32 || key.keyId !== keyIdOf(raw) || extra.length > 0) {
-      errors.push(`"signingKeys" has a key that is not { keyId, publicKey } as "fly-island-plugin keygen" prints it.`);
+      errors.push(`"signingKeys" has a key that is not { keyId, publicKey } as "fuyu-plugin keygen" prints it.`);
     } else if (key.endorsedBy !== undefined && (!isSignature(key.endorsedBy) || !verifyEndorsement(id, key, keys))) {
-      errors.push(`"signingKeys": the endorsedBy of ${key.keyId} is not a valid signature for ${id} by another listed key ("fly-island-plugin keys rotate" prints it).`);
+      errors.push(`"signingKeys": the endorsedBy of ${key.keyId} is not a valid signature for ${id} by another listed key ("fuyu-plugin keys rotate" prints it).`);
     }
   }
   if (new Set(keys.map((key) => key?.keyId)).size !== keys.length) errors.push(`"signingKeys" lists a key twice.`);

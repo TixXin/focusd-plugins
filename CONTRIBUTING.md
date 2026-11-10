@@ -6,9 +6,9 @@ English summary at the end.
 
 ## 准备插件
 
-1. 用脚手架创建插件并开发：`npm create fly-island-plugin@latest`（开发说明见 [浮屿插件文档](https://github.com/TixXin/fuyu/tree/main/docs/plugins)）。
-2. 确认通过校验：`npx fly-island-plugin validate`。
-3. 打包：`npx fly-island-plugin pack`，得到 `.package/<id>-<version>.zip`。请用这个命令打包：同样的文件总是得到同样的 zip，审核时能重新打包核对。
+1. 用脚手架创建插件并开发：`npm create fuyu-plugin@latest`（开发说明见 [浮屿插件文档](https://github.com/TixXin/fuyu/tree/main/docs/plugins)）。
+2. 确认通过校验：`npx fuyu-plugin validate`。
+3. 打包：`npx fuyu-plugin pack`，得到 `.package/<id>-<version>.zip`。请用这个命令打包：同样的文件总是得到同样的 zip，审核时能重新打包核对。
 4. 在你的仓库发布 GitHub Release：
    - 标签是清单里的 `version`，可以带 `v`，例如 `v1.2.0` 或 `1.2.0`；
    - 附件是第 3 步的 `<id>-<version>.zip`，文件名不能改；
@@ -35,7 +35,7 @@ English summary at the end.
 
 | 字段 | 说明 |
 |---|---|
-| `id` | 与清单 `id` 相同，文件名必须是 `<id>.json`。不能包含 `focusd`（官方保留），也不能和已有 id 只差点号或连字符 |
+| `id` | 与清单 `id` 相同，文件名必须是 `<id>.json`。不能包含 `fuyu` 或 `focusd`（官方保留），也不能和已有 id 只差点号或连字符 |
 | `repo` | 插件仓库 `owner/name`，必须公开 |
 | `publisher` | 仓库所有者（GitHub 用户或组织），市场上显示为发布者 |
 | `categories` | 可选：`productivity`、`todos`、`developer`、`media`、`messages`、`information`、`utilities` |
@@ -43,12 +43,12 @@ English summary at the end.
 | `tagPrefix` | 可选，标签前缀 |
 | `path` | 可选，插件所在的文件夹（例如 `plugins/clock`），用来找 `README.md` 和 `CHANGELOG.md`；默认是仓库根目录 |
 | `domain` | 可选，你的域名（例如 `example.com`），用来成为「已验证」发布者，见下文 |
-| `signingKeys` | 可选，你的签名公钥，`npx fly-island-plugin keygen` 打印的 `[{ "keyId", "publicKey" }]`，见下文「作者签名」 |
+| `signingKeys` | 可选，你的签名公钥，`npx fuyu-plugin keygen` 打印的 `[{ "keyId", "publicKey" }]`，见下文「作者签名」 |
 
 PR 会自动检查：
 
 - 你是 `repo` 的所有者，或者是其所属组织的**公开**成员；
-- 能找到最新 Release 和附件，zip 不超过 20 MB，能通过 `fly-island-plugin validate`，清单的 id、版本与提交和标签一致；
+- 能找到最新 Release 和附件，zip 不超过 20 MB，能通过 `fuyu-plugin validate`，清单的 id、版本与提交和标签一致；
 - 包里没有常见格式的密钥：GitHub / npm 令牌、AWS 访问密钥、私钥、Slack 令牌、Google API Key、OpenAI / Anthropic API Key、Stripe 正式密钥。发现了就不收录，检查结果只写文件和行号，不写密钥本身。密钥一旦发布就算泄露了：请先在对应服务里撤销，再从包里去掉，发一个新版本。每小时的自动更新也做同样的检查；
 - 检查结果（申请的权限、运行时、是否有自定义网页界面）列在 Actions 的运行摘要里，供审核参考。
 
@@ -67,11 +67,11 @@ PR 会自动检查：
 
 可选，但**只有签了名的插件会在用户的岛屿上自动更新**。岛屿还会记下第一次看到的密钥，之后换了密钥（或去掉签名）的版本要用户在插件市场确认两次才会安装，所以即使你的 GitHub 账号或仓库被盗，攻击者也不能悄悄更新用户装好的插件。
 
-1. 只需一次：`npx fly-island-plugin keygen`，把打印的 `{ keyId, publicKey }` 写进提交的 `"signingKeys": [ ... ]`。**备份私钥**（`~/.fly-island-plugin/signing.key`）。
-2. 每次发版：`npx fly-island-plugin pack --sign`，把 `<id>-<version>.zip` 和 `<id>-<version>.zip.sig` 一起附到 Release。
+1. 只需一次：`npx fuyu-plugin keygen`，把打印的 `{ keyId, publicKey }` 写进提交的 `"signingKeys": [ ... ]`。**备份私钥**（`~/.fuyu-plugin/signing.key`；改名前放在 `~/.fly-island-plugin/` 的照常用）。
+2. 每次发版：`npx fuyu-plugin pack --sign`，把 `<id>-<version>.zip` 和 `<id>-<version>.zip.sig` 一起附到 Release。
 3. 第一次登记 `signingKeys` 的 PR 会检查最新 Release 已经带着用这把密钥做的签名，证明你持有私钥。
 
-登记之后，没有签名或签名不对的新版本**不会上架**，会开一个 `review-needed` issue；维护者写 `approved` 也不能让它上架，只能由作者补上签名。已上架但还没有签名的版本，补上 `.zip.sig` 后下一次构建会给它加上签名。**换密钥**（旧密钥还在）：运行 `npx fly-island-plugin keys rotate`，把它打印的新条目（带 `endorsedBy`，旧密钥的证明）加在 `signingKeys` 里旧密钥的后面，开 PR；CI 会核对证明。合并后用新密钥签名发版，用户的岛屿会自动接受新密钥。旧密钥可以留一段时间再删。**丢了旧密钥**或想停用签名：开 PR 直接换掉或删掉，维护者核实身份后才合并，之后的第一个更新每个用户都要手动确认。
+登记之后，没有签名或签名不对的新版本**不会上架**，会开一个 `review-needed` issue；维护者写 `approved` 也不能让它上架，只能由作者补上签名。已上架但还没有签名的版本，补上 `.zip.sig` 后下一次构建会给它加上签名。**换密钥**（旧密钥还在）：运行 `npx fuyu-plugin keys rotate`，把它打印的新条目（带 `endorsedBy`，旧密钥的证明）加在 `signingKeys` 里旧密钥的后面，开 PR；CI 会核对证明。合并后用新密钥签名发版，用户的岛屿会自动接受新密钥。旧密钥可以留一段时间再删。**丢了旧密钥**或想停用签名：开 PR 直接换掉或删掉，维护者核实身份后才合并，之后的第一个更新每个用户都要手动确认。
 
 ## 发布新版本
 
@@ -95,12 +95,12 @@ PR 会自动检查：
 
 ## English summary
 
-1. Build your plugin with `npm create fly-island-plugin@latest`, check it with `npx fly-island-plugin validate`, and pack it with `npx fly-island-plugin pack`.
+1. Build your plugin with `npm create fuyu-plugin@latest`, check it with `npx fuyu-plugin validate`, and pack it with `npx fuyu-plugin pack`.
 2. Publish a GitHub release in your repository: tag = manifest `version` (optionally prefixed with `v`), asset = `<id>-<version>.zip`.
-3. Open a pull request here that adds only `plugins/<id>.json` (fields above). You must own `repo`, or be a public member of the organization that owns it. Ids containing `focusd` are reserved.
+3. Open a pull request here that adds only `plugins/<id>.json` (fields above). You must own `repo`, or be a public member of the organization that owns it. Ids containing `fuyu` or `focusd` are reserved.
    Optional: `path`, the folder of the plugin in the repository, where the market looks for `README.md` / `CHANGELOG.md` when the package leaves them out (shown in the market's details, 16 KB each, fixed per version).
 4. Checks run automatically, including a scan for leaked credentials (tokens, API keys, private keys; a hit blocks the listing); a maintainer reads the source and merges. The plugin appears in the market within an hour.
-   Optional author signing: `npx fly-island-plugin keygen` once and list the printed key as `"signingKeys"`, then `npx fly-island-plugin pack --sign` and attach `<zip>.sig` too. Only signed plugins update by themselves on users' islands, and an update signed by another key waits for each user's confirmation. With `signingKeys`, unsigned versions are never listed, approved or not.
+   Optional author signing: `npx fuyu-plugin keygen` once and list the printed key as `"signingKeys"`, then `npx fuyu-plugin pack --sign` and attach `<zip>.sig` too. Only signed plugins update by themselves on users' islands, and an update signed by another key waits for each user's confirmation. With `signingKeys`, unsigned versions are never listed, approved or not.
    Optional "verified" mark: a GitHub organization with a verified domain gets it automatically; otherwise list `"domain": "example.com"` and serve `https://example.com/.well-known/focusd-publisher.json` with `{ "github": "<publisher>" }`.
 5. New versions: just publish a new release. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.
 

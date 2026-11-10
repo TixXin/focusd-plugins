@@ -10,6 +10,8 @@ export const PLUGINS_DIR = "plugins";
 export const OFFICIAL_PUBLISHER = "TixXin";
 /** Categories the market page offers (MARKET_CATEGORIES in the island's src/features/plugins/api.ts). */
 export const CATEGORIES = ["productivity", "todos", "developer", "media", "messages", "information", "utilities"];
+/** Ids containing these are the official publisher's: the name since the rename and the one before it. */
+const RESERVED_NAMES = ["fuyu", "focusd"];
 const ID_PATTERN = /^[a-z0-9][a-z0-9.-]*$/;
 const REPO_PATTERN = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
@@ -38,8 +40,8 @@ export function submissionErrors(submission, fileName) {
   else if (typeof repo === "string" && publisher.toLowerCase() !== ownerOf(repo).toLowerCase()) {
     errors.push(`"publisher" must be the owner of "repo" (${ownerOf(repo)}).`);
   }
-  if (!isOfficial(publisher) && typeof id === "string" && id.includes("focusd")) {
-    errors.push(`ids containing "focusd" are reserved for the official publisher.`);
+  if (!isOfficial(publisher) && typeof id === "string" && RESERVED_NAMES.some((name) => id.includes(name))) {
+    errors.push(`ids containing "fuyu" or "focusd" are reserved for the official publisher.`);
   }
   if (!Array.isArray(categories) || categories.some((name) => !CATEGORIES.includes(name))) {
     errors.push(`"categories" may only list: ${CATEGORIES.join(", ")}.`);

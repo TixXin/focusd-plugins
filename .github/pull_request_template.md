@@ -10,7 +10,7 @@
 
 - [ ] 这个 PR 只新增或修改了 `plugins/<id>.json` / This PR only adds or changes `plugins/<id>.json`
 - [ ] 我是插件仓库的所有者或其组织的公开成员 / I own the repository (or am a public member of its organization)
-- [ ] Release 的附件是 `fly-island-plugin pack` 生成的 `<id>-<version>.zip` / The release asset was built with `fly-island-plugin pack`
+- [ ] Release 的附件是 `fuyu-plugin pack` 生成的 `<id>-<version>.zip` / The release asset was built with `fuyu-plugin pack`
 - [ ] 插件只申请它用到的权限 / The plugin only asks for permissions it uses
 
 ## 插件做什么 / What it does
