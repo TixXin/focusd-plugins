@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-10T06:45:38.449Z",
+  "themes": [
+    {
+      "id": "focusd.black",
+      "name": {
+        "zh-CN": "纯黑",
+        "en": "Black"
+      },
+      "description": {
+        "zh-CN": "默认的纯黑，和屏幕的黑边、刘海融在一起。",
+        "en": "The default pure black, blending into the screen bezel and notch."
+      },
+      "author": "TixXin",
+      "appearance": {
+        "appearanceMode": "classic",
+        "fontFamily": "system",
+        "opacity": 100,
+        "topFilletRadius": 12,
+        "islandCornerRadius": 16,
+        "islandCornerShape": "squircle",
+        "taskTextColor": "#ffffff",
+        "pulseColor": "#3ae489",
+        "pulseBrightness": 100,
+        "islandBackgroundColor": "#000000",
+        "todoBackgroundColor": "#ffffff"
+      }
+    },
+    {
+      "id": "focusd.liquid-glass",
+      "name": {
+        "zh-CN": "液态玻璃",
+        "en": "Liquid glass"
+      },
+      "description": {
+        "zh-CN": "透出桌面的磨砂玻璃，冷色亮点。",
+        "en": "Frosted glass that lets the desktop through, with a cool accent."
+      },
+      "author": "TixXin",
+      "appearance": {
+        "appearanceMode": "liquidGlass",
+        "fontFamily": "system",
+        "opacity": 100,
+        "topFilletRadius": 12,
+        "islandCornerRadius": 24,
+        "islandCornerShape": "squircle",
+        "taskTextColor": "#ffffff",
+        "pulseColor": "#74d6ff",
+        "pulseBrightness": 100,
+        "islandBackgroundColor": "#0c1620",
+        "todoBackgroundColor": "#ffffff",
+        "glassIntensity": 72
+      }
+    },
+    {
+      "id": "focusd.midnight",
+      "name": {
+        "zh-CN": "午夜蓝",
+        "en": "Midnight"
+      },
+      "description": {
+        "zh-CN": "深海军蓝底色，蓝色亮点，圆角更大。",
+        "en": "Deep navy with a blue accent and rounder corners."
+      },
+      "author": "TixXin",
+      "appearance": {
+        "appearanceMode": "classic",
+        "fontFamily": "system",
+        "opacity": 100,
+        "topFilletRadius": 12,
+        "islandCornerRadius": 28,
+        "islandCornerShape": "squircle",
+        "taskTextColor": "#dbe7ff",
+        "pulseColor": "#5ab0ff",
+        "pulseBrightness": 100,
+        "islandBackgroundColor": "#0f1a2e",
+        "todoBackgroundColor": "#ffffff"
+      }
+    },
+    {
+      "id": "focusd.paper",
+      "name": {
+        "zh-CN": "暖白",
+        "en": "Paper"
+      },
+      "description": {
+        "zh-CN": "米白底色、深色文字，适合浅色桌面。",
+        "en": "Warm off-white with dark text, for light desktops."
+      },
+      "author": "TixXin",
+      "appearance": {
+        "appearanceMode": "classic",
+        "fontFamily": "system",
+        "opacity": 100,
+        "topFilletRadius": 12,
+        "islandCornerRadius": 22,
+        "islandCornerShape": "squircle",
+        "taskTextColor": "#2b2620",
+        "pulseColor": "#e07a3f",
+        "pulseBrightness": 100,
+        "islandBackgroundColor": "#f4efe6",
+        "todoBackgroundColor": "#ffffff"
+      }
+    },
+    {
+      "id": "focusd.pixel",
+      "name": {
+        "zh-CN": "像素",
+        "en": "Pixel"
+      },
+      "description": {
+        "zh-CN": "像素字体、圆形圆角、复古绿亮点。",
+        "en": "Pixel font, round corners and a retro green accent."
+      },
+      "author": "TixXin",
+      "appearance": {
+        "appearanceMode": "classic",
+        "fontFamily": "pixel",
+        "opacity": 100,
+        "topFilletRadius": 12,
+        "islandCornerRadius": 16,
+        "islandCornerShape": "round",
+        "taskTextColor": "#ffffff",
+        "pulseColor": "#7cff6b",
+        "pulseBrightness": 120,
+        "islandBackgroundColor": "#111111",
+        "todoBackgroundColor": "#ffffff"
+      }
+    }
+  ]
+}

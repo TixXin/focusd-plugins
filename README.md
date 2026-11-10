@@ -12,6 +12,8 @@ plugins/<id>.json          作者提交：插件仓库、发布者、分类
 index.json / index.json.sig       CI 生成并签名，不接受手工修改
 revoked.json / revoked.json.sig   下架名单（维护者修改，CI 签名）
 stars.json                 各插件的点赞数和点赞帖地址（CI 生成，不签名，只用于显示）
+themes/<id>.json           主题：岛屿长什么样（风格、字体、透明度、圆角、颜色），不含尺寸，不运行代码
+themes.json                CI 从 themes/ 生成，岛屿的主题市场读它
 keys/trusted.json          岛屿信任的签名公钥（与岛屿仓库的 plugins/signing-keys.json 一致）
 scripts/                   索引构建、PR 检查、签名
 ```
@@ -22,6 +24,7 @@ scripts/                   索引构建、PR 检查、签名
 |---|---|---|
 | `Check submission` | 每个 PR | 只读权限、没有密钥。检查提交格式、所有权，下载并校验插件包，扫描包里遗留的密钥（`scripts/lib/secrets.mjs`），把权限等信息写进运行摘要 |
 | `Update index` | 每小时、`main` 变化时、手动 | 找出每个插件的最新 Release，校验后更新 `index.json`，用 `release` 环境里的密钥签名并提交 |
+| `Update themes` | `main` 上的 `themes/` 变化时、手动 | 校验每个主题（`scripts/lib/themes.mjs`），按官方在前、其余按 id 排序写进 `themes.json` |
 | `Update likes` | 每小时、手动 | 每个上架插件在 Discussions 的 Announcements 分类里有一条点赞帖（正文开头是 `<!-- focusd-plugin: <id> -->`，新上架的插件由这个工作流自动开帖）；统计每条帖子的 👍，写进 `stars.json`。岛屿插件市场显示这个数字，卡片上的点赞按钮打开对应的帖子。和 `Update index` 排同一个队，不会同时推送 |
 
 - 已上架的版本不会重新下载，也不会改变。

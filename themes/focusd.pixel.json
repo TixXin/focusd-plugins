@@ -1,0 +1,25 @@
+{
+  "id": "focusd.pixel",
+  "name": {
+    "zh-CN": "像素",
+    "en": "Pixel"
+  },
+  "description": {
+    "zh-CN": "像素字体、圆形圆角、复古绿亮点。",
+    "en": "Pixel font, round corners and a retro green accent."
+  },
+  "author": "TixXin",
+  "appearance": {
+    "appearanceMode": "classic",
+    "fontFamily": "pixel",
+    "opacity": 100,
+    "topFilletRadius": 12,
+    "islandCornerRadius": 16,
+    "islandCornerShape": "round",
+    "taskTextColor": "#ffffff",
+    "pulseColor": "#7cff6b",
+    "pulseBrightness": 120,
+    "islandBackgroundColor": "#111111",
+    "todoBackgroundColor": "#ffffff"
+  }
+}

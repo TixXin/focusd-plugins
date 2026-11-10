@@ -1,5 +1,6 @@
 // Checks a pull request (runs without secrets, on `pull_request`):
-// - authors who are not maintainers may only add or change plugins/<id>.json;
+// - authors who are not maintainers may only add or change plugins/<id>.json and
+//   themes/<id>.json (a theme only under their own login, scripts/lib/themes.mjs);
 // - each changed submission is well formed, its id is free and not easy to
 //   confuse with another, and the author owns the repository it points to;
 // - its newest package is found, downloaded and validated like the index build
@@ -8,6 +9,7 @@
 //
 // Environment: BASE_SHA, PR_AUTHOR, AUTHOR_ASSOCIATION (from the workflow),
 // GITHUB_TOKEN (optional, for the API rate limit), GITHUB_STEP_SUMMARY.
+import { loadThemes, THEME_FILE } from "./lib/themes.mjs";
 import { spawnSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -68,8 +70,31 @@ export async function checkPullRequest(root, { base, author, association }) {
 
   for (const { status, file } of changes) {
     if (maintainer) continue;
-    if (!SUBMISSION_FILE.test(file)) errors.push(`${file}: only maintainers may change files outside plugins/.`);
+    if (THEME_FILE.test(file)) {
+      if (status === "D") errors.push(`${file}: ask a maintainer to remove a theme (open an issue).`);
+      continue;
+    }
+    if (!SUBMISSION_FILE.test(file)) errors.push(`${file}: only maintainers may change files outside plugins/ and themes/.`);
     else if (status === "D") errors.push(`${file}: ask a maintainer to remove a plugin (open an issue).`);
+  }
+
+  // Themes: every one must check out; one changed by someone else must be under their login.
+  const { themes, errors: themeProblems } = loadThemes(root);
+  errors.push(...themeProblems);
+  for (const { status, file } of changes) {
+    if (status === "D" || !THEME_FILE.test(file)) continue;
+    const theme = themes.find((item) => `themes/${item.id}.json` === file);
+    const before = spawnSync("git", ["show", `${base}:${file}`], { encoding: "utf8" });
+    let oldAuthor = null;
+    try { oldAuthor = before.status === 0 ? JSON.parse(before.stdout).author : null; } catch { oldAuthor = null; }
+    const login = String(author).toLowerCase();
+    if (theme && !maintainer && theme.author.toLowerCase() !== login) {
+      errors.push(`${file}: author must be your GitHub login (@${author}).`);
+    }
+    if (!maintainer && typeof oldAuthor === "string" && oldAuthor.toLowerCase() !== login) {
+      errors.push(`${file}: only @${oldAuthor} may change this theme.`);
+    }
+    if (theme) notes.push(`### Theme ${theme.id}`, `- ${theme.name["zh-CN"]} / ${theme.name.en}, by @${theme.author}`, "");
   }
 
   if (changes.some(({ file }) => file === "revoked.json")) {

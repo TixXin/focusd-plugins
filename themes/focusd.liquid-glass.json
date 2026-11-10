@@ -1,0 +1,26 @@
+{
+  "id": "focusd.liquid-glass",
+  "name": {
+    "zh-CN": "液态玻璃",
+    "en": "Liquid glass"
+  },
+  "description": {
+    "zh-CN": "透出桌面的磨砂玻璃，冷色亮点。",
+    "en": "Frosted glass that lets the desktop through, with a cool accent."
+  },
+  "author": "TixXin",
+  "appearance": {
+    "appearanceMode": "liquidGlass",
+    "fontFamily": "system",
+    "opacity": 100,
+    "topFilletRadius": 12,
+    "islandCornerRadius": 24,
+    "islandCornerShape": "squircle",
+    "taskTextColor": "#ffffff",
+    "pulseColor": "#74d6ff",
+    "pulseBrightness": 100,
+    "islandBackgroundColor": "#0c1620",
+    "todoBackgroundColor": "#ffffff",
+    "glassIntensity": 72
+  }
+}

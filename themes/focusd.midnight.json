@@ -1,0 +1,25 @@
+{
+  "id": "focusd.midnight",
+  "name": {
+    "zh-CN": "午夜蓝",
+    "en": "Midnight"
+  },
+  "description": {
+    "zh-CN": "深海军蓝底色，蓝色亮点，圆角更大。",
+    "en": "Deep navy with a blue accent and rounder corners."
+  },
+  "author": "TixXin",
+  "appearance": {
+    "appearanceMode": "classic",
+    "fontFamily": "system",
+    "opacity": 100,
+    "topFilletRadius": 12,
+    "islandCornerRadius": 28,
+    "islandCornerShape": "squircle",
+    "taskTextColor": "#dbe7ff",
+    "pulseColor": "#5ab0ff",
+    "pulseBrightness": 100,
+    "islandBackgroundColor": "#0f1a2e",
+    "todoBackgroundColor": "#ffffff"
+  }
+}

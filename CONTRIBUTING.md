@@ -103,3 +103,30 @@ PR 会自动检查：
    Optional author signing: `npx fly-island-plugin keygen` once and list the printed key as `"signingKeys"`, then `npx fly-island-plugin pack --sign` and attach `<zip>.sig` too. Only signed plugins update by themselves on users' islands, and an update signed by another key waits for each user's confirmation. With `signingKeys`, unsigned versions are never listed, approved or not.
    Optional "verified" mark: a GitHub organization with a verified domain gets it automatically; otherwise list `"domain": "example.com"` and serve `https://example.com/.well-known/focusd-publisher.json` with `{ "github": "<publisher>" }`.
 5. New versions: just publish a new release. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.
+
+## 提交主题 / Submit a theme
+
+主题只描述岛屿长什么样，不含尺寸和布局，也不运行代码，所以不需要发 Release，也不需要签名。开一个 pull request，只新增 `themes/<id>.json`：
+
+```json
+{
+  "id": "yourname.dusk",
+  "name": { "zh-CN": "黄昏", "en": "Dusk" },
+  "description": { "zh-CN": "一句话说明（可省略）", "en": "One line (optional)" },
+  "author": "your-github-login",
+  "appearance": {
+    "appearanceMode": "classic",
+    "islandBackgroundColor": "#1b1020",
+    "pulseColor": "#ff9a5a",
+    "islandCornerRadius": 24
+  }
+}
+```
+
+- `id`：3–64 个小写字母、数字、点或连字符，文件名必须是 `<id>.json`。
+- `author` 必须是你自己的 GitHub 账号；别人的主题只有原作者能改。
+- `appearance` 只能有这些字段：`appearanceMode`（`classic` / `liquidGlass`）、`fontFamily`（`system` / `pixel`）、`glassIntensity`（25–100）、`opacity`（50–100）、`topFilletRadius`（0–12）、`islandCornerRadius`（16–40）、`islandCornerShape`（`squircle` / `round`）、`taskTextColor`、`pulseColor`、`islandBackgroundColor`、`todoBackgroundColor`（`#rrggbb`）、`pulseBrightness`（50–160）。没写的字段保持用户自己的设置。
+- 最简单的办法：在岛屿的 设置 → 主题 里调好，导出主题文件，把里面的 `appearance` 抄过来。
+
+PR 检查会校验格式和作者；合并后 `themes.json` 自动更新，岛屿的 设置 → 主题市场 下次打开就能看到。
+

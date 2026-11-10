@@ -1,0 +1,46 @@
+# Rebuilds themes.json from themes/<id>.json whenever main changes them (scripts/build-themes.mjs).
+# Shares the index workflow's queue, so the workflows never push at once.
+name: Update themes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "themes/**"
+      - "scripts/build-themes.mjs"
+      - "scripts/lib/themes.mjs"
+      - ".github/workflows/update-themes.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: update-index
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build themes.json
+        run: node scripts/build-themes.mjs
+      - name: Commit
+        run: |
+          git add themes.json
+          if git diff --cached --quiet; then
+            echo "The themes did not change."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(themes): update the theme index"
+          git pull --rebase --quiet
+          git push
