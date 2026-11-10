@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T06:47:05.919Z",
+  "updatedAt": "2026-11-10T07:02:23.354Z",
   "themes": [
     {
       "id": "focusd.black",
@@ -23,8 +23,7 @@
         "taskTextColor": "#ffffff",
         "pulseColor": "#3ae489",
         "pulseBrightness": 100,
-        "islandBackgroundColor": "#000000",
-        "todoBackgroundColor": "#ffffff"
+        "islandBackgroundColor": "#000000"
       }
     },
     {
@@ -49,7 +48,6 @@
         "pulseColor": "#74d6ff",
         "pulseBrightness": 100,
         "islandBackgroundColor": "#0c1620",
-        "todoBackgroundColor": "#ffffff",
         "glassIntensity": 72
       }
     },
@@ -74,8 +72,7 @@
         "taskTextColor": "#dbe7ff",
         "pulseColor": "#5ab0ff",
         "pulseBrightness": 100,
-        "islandBackgroundColor": "#0f1a2e",
-        "todoBackgroundColor": "#ffffff"
+        "islandBackgroundColor": "#0f1a2e"
       }
     },
     {
@@ -99,8 +96,7 @@
         "taskTextColor": "#2b2620",
         "pulseColor": "#e07a3f",
         "pulseBrightness": 100,
-        "islandBackgroundColor": "#f4efe6",
-        "todoBackgroundColor": "#ffffff"
+        "islandBackgroundColor": "#f4efe6"
       }
     },
     {
@@ -124,8 +120,7 @@
         "taskTextColor": "#ffffff",
         "pulseColor": "#7cff6b",
         "pulseBrightness": 120,
-        "islandBackgroundColor": "#111111",
-        "todoBackgroundColor": "#ffffff"
+        "islandBackgroundColor": "#111111"
       }
     }
   ]
