@@ -1,5 +1,5 @@
 blank_issues_enabled: true
 contact_links:
   - name: 插件开发文档 / Plugin docs
-    url: https://github.com/TixXin/fly-island/tree/main/docs/plugins
+    url: https://github.com/TixXin/fuyu/tree/main/docs/plugins
     about: 怎么写插件、怎么提交 / How to write and submit a plugin

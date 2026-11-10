@@ -1,5 +1,5 @@
 // Author signatures of plugin packages, checked the same way as the island
-// (src-tauri/src/plugin_host/author_signing.rs in TixXin/fly-island) and made by
+// (src-tauri/src/plugin_host/author_signing.rs in TixXin/fuyu) and made by
 // `fly-island-plugin pack --sign`: Ed25519 over
 // "focusd-plugin-package/1\n<id>\n<version>\n<sha256 of the zip>", published as
 // <id>-<version>.zip.sig ({ keyId, signature }) next to the zip.

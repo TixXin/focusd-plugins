@@ -1,4 +1,4 @@
-// "Verified" publishers (plugin-author-signing.md §4 in TixXin/fly-island): the
+// "Verified" publishers (plugin-author-signing.md §4 in TixXin/fuyu): the
 // market shows that a publisher really is who the name suggests. Not a safety
 // rating of the plugin.
 //
@@ -21,7 +21,7 @@ async function fetchProof(domain) {
   const response = await fetch(`https://${domain}/${WELL_KNOWN}`, {
     redirect: "error",
     signal: AbortSignal.timeout(TIMEOUT_MS),
-    headers: { "User-Agent": "focusd-plugins-index", Accept: "application/json" },
+    headers: { "User-Agent": "fuyu-plugins-index", Accept: "application/json" },
   });
   const text = Buffer.from(await response.arrayBuffer());
   if (text.length > MAX_PROOF_BYTES) return { status: response.status, text: null };

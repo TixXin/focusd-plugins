@@ -26,8 +26,8 @@ test("only 👍 counts", () => {
 
 test("stars.json lists the plugins with a discussion; the oldest discussion of a plugin wins", () => {
   const discussions = [
-    { number: 7, url: "https://github.com/TixXin/focusd-plugins/discussions/7", body: discussionFor(clock).body, reactionGroups: likes(1) },
-    { number: 3, url: "https://github.com/TixXin/focusd-plugins/discussions/3", body: discussionFor(clock).body, reactionGroups: likes(5) },
+    { number: 7, url: "https://github.com/TixXin/fuyu-plugins/discussions/7", body: discussionFor(clock).body, reactionGroups: likes(1) },
+    { number: 3, url: "https://github.com/TixXin/fuyu-plugins/discussions/3", body: discussionFor(clock).body, reactionGroups: likes(5) },
     { number: 9, url: "https://github.com/TixXin/focusd-plugins/discussions/9", body: "<!-- focusd-plugin: gone.plugin -->", reactionGroups: likes(2) },
   ];
   const stars = buildStars([clock, timer], discussions, "2026-11-09T00:00:00.000Z");

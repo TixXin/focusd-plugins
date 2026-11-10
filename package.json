@@ -1,7 +1,7 @@
 {
-  "name": "focusd-plugins",
+  "name": "fuyu-plugins",
   "private": true,
-  "description": "The plugin market index of FocuSD Island",
+  "description": "The plugin market index of Fuyu",
   "type": "module",
   "engines": {
     "node": ">=22"

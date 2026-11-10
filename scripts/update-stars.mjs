@@ -1,4 +1,4 @@
-// Likes for the plugin market (TixXin/fly-island#16). Every listed plugin has a
+// Likes for the plugin market (TixXin/fuyu#16). Every listed plugin has a
 // discussion in this repository, in the Announcements category so only
 // maintainers and this workflow open them; anyone signed in to GitHub can give it
 // a 👍. This script opens the missing discussions, counts the 👍 and writes
@@ -10,8 +10,21 @@ import { fileURLToPath } from "node:url";
 
 export const STARS_VERSION = 1;
 const OWNER = "TixXin";
-const NAME = "focusd-plugins";
+const NAME = "fuyu-plugins";
+/**
+ * Discussion links in stars.json keep this repository's name from before the rename
+ * (TixXin/focusd-plugins): islands released before it accept only that prefix, newer
+ * ones accept both, and GitHub redirects the old address.
+ */
+const LINK_PREFIX = "https://github.com/TixXin/fuyu-plugins/discussions/";
+const LEGACY_LINK_PREFIX = "https://github.com/TixXin/focusd-plugins/discussions/";
+
+/** A discussion's link as stars.json writes it (under the old repository name). */
+export function starsLink(url) {
+  return url?.startsWith(LINK_PREFIX) ? LEGACY_LINK_PREFIX + url.slice(LINK_PREFIX.length) : url;
+}
 const CATEGORY_SLUG = process.env.FOCUSD_STARS_CATEGORY ?? "announcements";
+// Existing discussions carry this marker; it keeps its name from before the rename.
 const MARKER = /<!--\s*focusd-plugin:\s*([a-z0-9.-]+)\s*-->/;
 
 /** The plugins the market lists: stable entries, one per id, with their names and repository. */
@@ -44,11 +57,11 @@ export function discussionFor(plugin) {
   return {
     title: zh === en ? `${zh} (${plugin.id})` : `${zh} / ${en} (${plugin.id})`,
     body: `<!-- focusd-plugin: ${plugin.id} -->
-**${zh}** 在 FocuSD Island 插件市场的点赞帖。觉得好用就给这条帖子点 👍，插件市场会显示点赞数（每小时更新一次）。也欢迎在下面留言。${issues}
+**${zh}** 在浮屿插件市场的点赞帖。觉得好用就给这条帖子点 👍，插件市场会显示点赞数（每小时更新一次）。也欢迎在下面留言。${issues}
 
 ---
 
-Give this post a 👍 if you like **${en}**: the FocuSD Island plugin market shows the count, updated every hour. Comments are welcome below.${issuesEn}
+Give this post a 👍 if you like **${en}**: the Fuyu plugin market shows the count, updated every hour. Comments are welcome below.${issuesEn}
 `,
   };
 }
@@ -65,7 +78,7 @@ export function buildStars(plugins, discussions, now) {
     .filter((plugin) => byPlugin.has(plugin.id))
     .map((plugin) => {
       const discussion = byPlugin.get(plugin.id);
-      return [plugin.id, { count: thumbsUp(discussion), url: discussion.url }];
+      return [plugin.id, { count: thumbsUp(discussion), url: starsLink(discussion.url) }];
     });
   return { version: STARS_VERSION, updatedAt: now, plugins: Object.fromEntries(entries) };
 }
@@ -80,7 +93,7 @@ async function graphql(query, variables) {
   if (!token) throw new Error("GITHUB_TOKEN is needed to read and open discussions.");
   const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "User-Agent": "focusd-plugins-stars" },
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "User-Agent": "fuyu-plugins-stars" },
     body: JSON.stringify({ query, variables }),
   });
   const result = await response.json();

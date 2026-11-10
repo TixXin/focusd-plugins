@@ -1,4 +1,4 @@
-// Themes for FocuSD Island's theme market (TixXin/fly-island C26). A theme is data only:
+// Themes for Fuyu's theme market (TixXin/fuyu C26). A theme is data only:
 // themes/<id>.json says what the island looks like (style, font, opacity, glass, corners,
 // colours), never its size or layout, and runs no code. build-themes.mjs gathers them into
 // themes.json; check-submission.mjs checks one in a pull request. The island checks every value

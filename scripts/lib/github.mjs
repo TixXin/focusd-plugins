@@ -2,7 +2,7 @@
 // raises the API rate limit; without it the public limit applies.
 
 const API = "https://api.github.com";
-const USER_AGENT = "focusd-plugins-index";
+const USER_AGENT = "fuyu-plugins-index";
 
 function headers(extra = {}) {
   const token = process.env.GITHUB_TOKEN;

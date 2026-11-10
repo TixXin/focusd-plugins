@@ -1,12 +1,12 @@
 # 提交插件 / Submitting a plugin
 
-FocuSD Island 的插件市场从这个仓库读取 `index.json`。你的插件包放在**你自己仓库的 GitHub Release** 里，这个仓库只记录插件在哪里。
+浮屿（原名 FocuSD Island）的插件市场从这个仓库读取 `index.json`。你的插件包放在**你自己仓库的 GitHub Release** 里，这个仓库只记录插件在哪里。
 
 English summary at the end.
 
 ## 准备插件
 
-1. 用脚手架创建插件并开发：`npm create fly-island-plugin@latest`（开发说明见 [FocuSD Island 插件文档](https://github.com/TixXin/fly-island/tree/main/docs/plugins)）。
+1. 用脚手架创建插件并开发：`npm create fly-island-plugin@latest`（开发说明见 [浮屿插件文档](https://github.com/TixXin/fuyu/tree/main/docs/plugins)）。
 2. 确认通过校验：`npx fly-island-plugin validate`。
 3. 打包：`npx fly-island-plugin pack`，得到 `.package/<id>-<version>.zip`。请用这个命令打包：同样的文件总是得到同样的 zip，审核时能重新打包核对。
 4. 在你的仓库发布 GitHub Release：

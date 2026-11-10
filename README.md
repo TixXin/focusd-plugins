@@ -1,6 +1,8 @@
-# focusd-plugins
+# fuyu-plugins
 
-[FocuSD Island](https://github.com/TixXin/fly-island) 插件市场的索引仓库。The plugin market index of FocuSD Island.
+[浮屿 / Fuyu](https://github.com/TixXin/fuyu)（原名 FocuSD Island）插件市场的索引仓库。The plugin market index of Fuyu (formerly FocuSD Island).
+
+仓库原名 `TixXin/focusd-plugins`，2026-11-10 改名；已发布的岛屿仍请求旧地址，由 GitHub 重定向，所以旧名字不能再用来建仓库。点赞帖的地址在 `stars.json` 里仍写旧仓库名，旧版岛屿只认它。The repository was renamed from `TixXin/focusd-plugins`; islands already released reach it through GitHub's redirect, and `stars.json` keeps discussion links under the old name for them.
 
 - **提交插件 / Submit a plugin**：见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 - **报告插件问题 / Report a plugin**：[开一个 issue](../../issues/new/choose)。
