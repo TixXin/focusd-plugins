@@ -19,7 +19,6 @@
     "taskTextColor": "#dbe7ff",
     "pulseColor": "#5ab0ff",
     "pulseBrightness": 100,
-    "islandBackgroundColor": "#0f1a2e",
-    "todoBackgroundColor": "#ffffff"
+    "islandBackgroundColor": "#0f1a2e"
   }
 }

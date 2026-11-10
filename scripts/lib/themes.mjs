@@ -27,7 +27,6 @@ const FIELDS = {
   pulseColor: "color",
   pulseBrightness: [50, 160],
   islandBackgroundColor: "color",
-  todoBackgroundColor: "color",
 };
 
 function text(value, max, label, errors, required = true) {

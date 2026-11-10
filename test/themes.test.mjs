@@ -29,3 +29,7 @@ test("the repository's own themes check out, official ones first in the index", 
   assert.equal(index.version, 1);
   assert.equal(index.themes[index.themes.length - 1].id, "someone.dusk");
 });
+
+test("the todo paper colour is no longer a theme field (fly-island C28)", () => {
+  assert.match(themeErrors({ ...good, appearance: { todoBackgroundColor: "#ffffff" } }).join(), /not a theme field/);
+});

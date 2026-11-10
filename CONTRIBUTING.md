@@ -125,7 +125,7 @@ PR 会自动检查：
 
 - `id`：3–64 个小写字母、数字、点或连字符，文件名必须是 `<id>.json`。
 - `author` 必须是你自己的 GitHub 账号；别人的主题只有原作者能改。
-- `appearance` 只能有这些字段：`appearanceMode`（`classic` / `liquidGlass`）、`fontFamily`（`system` / `pixel`）、`glassIntensity`（25–100）、`opacity`（50–100）、`topFilletRadius`（0–12）、`islandCornerRadius`（16–40）、`islandCornerShape`（`squircle` / `round`）、`taskTextColor`、`pulseColor`、`islandBackgroundColor`、`todoBackgroundColor`（`#rrggbb`）、`pulseBrightness`（50–160）。没写的字段保持用户自己的设置。
+- `appearance` 只能有这些字段：`appearanceMode`（`classic` / `liquidGlass`）、`fontFamily`（`system` / `pixel`）、`glassIntensity`（25–100）、`opacity`（50–100）、`topFilletRadius`（0–12）、`islandCornerRadius`（16–40）、`islandCornerShape`（`squircle` / `round`）、`taskTextColor`、`pulseColor`、`islandBackgroundColor`（`#rrggbb`）、`pulseBrightness`（50–160）。没写的字段保持用户自己的设置。
 - 最简单的办法：在岛屿的 设置 → 主题 里调好，导出主题文件，把里面的 `appearance` 抄过来。
 
 PR 检查会校验格式和作者；合并后 `themes.json` 自动更新，岛屿的 设置 → 主题市场 下次打开就能看到。
