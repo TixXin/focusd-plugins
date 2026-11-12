@@ -105,7 +105,7 @@ async function reportHeld(held) {
         title,
         labels: ["review-needed"],
         body: unsigned
-          ? `The newest release of \`${id}\` (${version}) was not listed because it ${reasons.join("; ")}.\n\nOnly releases signed by the author are listed for this plugin, and approving the version does not change that: the author should attach \`${id}-${version}.zip.sig\` made with \`npx fly-island-plugin sign\`. If the author did not publish this release, the repository may have been taken over. Close this issue once it is listed.`
+          ? `The newest release of \`${id}\` (${version}) was not listed because it ${reasons.join("; ")}.\n\nOnly releases signed by the author are listed for this plugin, and approving the version does not change that: the author should attach \`${id}-${version}.zip.sig\` made with \`npx fuyu-plugin sign\`. If the author did not publish this release, the repository may have been taken over. Close this issue once it is listed.`
           : `The newest release of \`${id}\` (${version}) was not listed automatically because it ${reasons.join("; ")}.\n\nTo list it, review the release and merge a pull request that sets \`"approved": "${version}"\` in \`plugins/${id}.json\`. The next index build lists it; then close this issue.`,
       },
     });
