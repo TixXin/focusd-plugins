@@ -138,7 +138,7 @@
         "zh-CN": "岛上多一个监控页：CPU 和每个核心、GPU（任何显卡的占用和引擎，NVIDIA 另有温度和功耗）、内存、上下行网速、电池，以及最占 CPU 和内存的程序；收起条上可以放 CPU、内存和温度。只在页面打开或收起条显示时读取（也可以选择在后台记录曲线），不需要管理员权限，不联网。用 Windows 自带的 PowerShell 运行。",
         "en": "Adds a monitor page: CPU and each core, the GPU (load and engines of any GPU; temperature and power on NVIDIA), memory, network speed, the battery and the programs using the most CPU and memory; CPU, memory and temperatures can also show on the collapsed bar. Reads only while the page is open or the bar shows figures (or, if you choose, records the charts in the background), needs no administrator rights and never goes online. Runs on the PowerShell built into Windows."
       },
-      "version": "1.2.0",
+      "version": "1.3.0",
       "apiVersion": 2,
       "author": "ShengLin1001",
       "homepage": "https://github.com/TixXin/fly-island/tree/main/plugins/examples/dev.focusd.system-monitor",
@@ -151,16 +151,16 @@
         "utilities",
         "information"
       ],
-      "readme": "# 系统监控\n\n岛上多一个「系统监控」页，收起条上也可以放几个数字。\n\n## 怎么用\n\n- 安装并启用后，岛上会多一个「系统监控」页面：CPU 总占用和五分钟曲线、每个逻辑核心一根小柱、CPU 温度；GPU 占用、温度、显存和功耗（只支持 NVIDIA）；内存；上下行网速和曲线；电池；最占 CPU 或内存的 5 个程序（同一程序的进程合在一起）。\n- 在插件设置里勾选「收起条显示 CPU 占用 / 内存占用 / CPU 温度 / GPU 温度」，收起条上就会出现对应的几列，数值偏高时变黄、变红，点击打开监控页。默认都不勾。\n- 曲线默认只记页面开着时的数据。勾选「后台记录曲线」后，页面关着时插件也每秒记一次 CPU、GPU 和网速，打开页面就能看到最近五分钟。默认不勾。\n\n## 开销\n\n- 只在需要时读取：监控页打开时每秒一次（程序列表每 3 秒），收起条有勾选项时每 2 秒一次，勾了「后台记录曲线」时页面关着也每秒读一次 CPU、GPU 和网速，都没有时不读。\n- 收起条项目和「后台记录曲线」都没勾时，插件在空闲 60 秒后停下，打开页面时再启动；勾了就一直运行（插件卡片上会写原因）。\n- 运行时是一个 Windows 自带的 PowerShell 进程，常驻内存约 60–120 MB（大部分是 PowerShell 本身；空进程约 57 MB，开着监控页读数时约 85 MB）。\n\n## 数据来源\n\n都不需要管理员权限，也不联网：\n\n- CPU、每个核心、内存：Windows 性能计数器。\n- 网速：网卡的收发字节数。\n- 程序：`Get-Process`，两次读取之间的 CPU 时间。\n- CPU 温度：WMI 的 ACPI 温度区（`Win32_PerfFormattedData_Counters_ThermalZoneInformation`），取最热的一个。很多台式机主板不提供，会显示 -；这个温度通常是主板测的，比 CPU 核心温度低。\n- GPU：`nvidia-smi`，至多每 2 秒一次。没有 NVIDIA 显卡时显示 —。\n- 电池：`Win32_Battery`，每 10 秒一次。\n\n## 权限\n\n不需要任何权限。\n\n## 示例演示了什么\n\n自定义界面页面（`webview`）和收起条上的列（`status.update` 的 `cells`，能力 `statusCells`；旧版岛屿只显示文字）。\n\n## 作者\n\nShengLin1001 在 [TixXin/fly-island#7](https://github.com/TixXin/fly-island/pull/7) 里把系统监控做成了岛屿的内置功能，监控页的版式、样式和收起条的设计都来自那里。TixXin 把它改成了市场插件：读取部分用 PowerShell 重写，收起条改用插件接口 `status.update` 的列。\n\n## English\n\nDesigned by ShengLin1001 as a built-in feature in TixXin/fly-island#7; turned into a market plugin by TixXin (data reading rewritten in PowerShell, the bar drawn through `status.update` cells).\n\n\nAdds a System page: CPU load with five minutes of history, one bar per logical core and the CPU temperature; GPU load, temperature, memory and power (NVIDIA only); memory; download and upload speed; the battery; and the five programs using the most CPU or memory. Tick the plugin's settings to show CPU load, memory, CPU or GPU temperature as small columns on the collapsed bar; they turn yellow and red as they climb.\n\nIt reads only while the page is open (every second) or the bar shows figures (every 2 s); with \"record the charts in the background\" ticked it also reads CPU, GPU and network every second while the page is closed, so the charts show the last five minutes when it opens. It needs no administrator rights and never goes online. The CPU temperature is the hottest ACPI thermal zone, which many desktops do not have.",
-      "changelog": "# 更新记录\n\n## 1.2.0\n\n- 任何显卡都有 GPU 占用：读 Windows 自带的 GPU 计数器（和任务管理器的数字一致），AMD、Intel 也有，不再只认 NVIDIA。GPU 下面多一排引擎条：3D、复制、视频解码、视频编码。计数器读一次要 0.3–1 秒，放在后台线程里每 2 秒读一次，只在监控页打开时读，不拖慢每秒的刷新。\n- CPU 下面是每个核心，GPU 下面是它的引擎，一一对应。核心很多（32 个以上）时竖条间距变窄，不会挤出页面。完全读不到 GPU 的电脑，CPU 占满这一行。\n- 浅色岛屿底色上也能看清：岛屿 0.3.4 起把墨色告诉不套卡片的页面，图表颜色也换成在浅底上看得清的深一档。\n- 修复：程序图标存进了页面状态，看过的程序一多就超过岛屿给页面的 64 KB，曲线历史也跟着存不下。现在图标只在页面打开期间保留，插件自己缓存，再打开时重新发过去。\n- 打开页面后程序列表 1 秒左右就出来（以前要等 3 秒），等待时显示占位行，不会跳动。读程序路径只读排在前面的几个，不再每 3 秒对所有进程读一遍。\n- 曲线刚打开时至少按一分钟铺开，不再只在最右边一小段。鼠标停在 CPU、GPU、网速上显示最近 5 分钟的平均和最高。\n- 内存一行加上百分比；占用超过整机 20% 的程序数字变红。\n- 程序一栏右上角加了「打开任务管理器」按钮。\n\n## 1.1.0\n\n- 监控页重新排版：不再套卡片，直接画在岛上；岛在这一页变宽（760px），左边是 CPU、GPU、每个核心、内存、网速，右边是最占 CPU 或内存的 6 个程序，不再出现滚动条。需要 FocuSD Island 0.3.4 或更新，旧版岛屿照旧显示窄页面。\n- 程序带上自己的图标（每个程序只读一次）；系统进程这类读不到图标的显示首字母。\n- CPU、GPU、内存各有一个小圆环；显存、显卡功耗和电池放在一行，电脑上没有的就不显示。\n\n## 1.0.3\n\n- 新设置「后台记录曲线」（默认关）：监控页关着时也每秒读一次 CPU、GPU 和网速，打开页面时曲线带着最近五分钟，不再只有打开之后的数据。开着时插件一直运行（约 80 MB 的 PowerShell 进程）。\n- 曲线从一分钟加长到五分钟（每秒一个点）。\n\n## 1.0.2\n\n- 修复：监控页只偶尔刷新，「程序」一栏一直是空的。插件等岛屿消息时的超时在 Windows PowerShell 5.1 上不生效，两次消息之间读数就停住了（issue #12）。现在每秒刷新一次，程序列表每 3 秒更新。\n\n## 1.0.1\n\n- 作者改为 ShengLin1001（插件的设计来自他的 PR #7）。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本：监控页（CPU、每个核心、GPU、内存、网速、电池、最忙的程序），收起条上可选的 CPU、内存和温度。",
+      "readme": "# 系统监控\n\n岛上多一个「系统监控」页，收起条上也可以放几个数字。\n\n## 怎么用\n\n- 安装并启用后，岛上会多一个「系统监控」页面：CPU 总占用和五分钟曲线、每个逻辑核心一根小柱、CPU 温度；GPU 占用、温度、显存和功耗（只支持 NVIDIA）；内存；上下行网速和曲线；电池；最占 CPU 或内存的程序（同一程序的进程合在一起，按页面高度最多显示 10 个）。\n- 在插件设置里勾选「收起条显示 CPU 占用 / 内存占用 / CPU 温度 / GPU 温度」，收起条上就会出现对应的几列，数值偏高时变黄、变红，点击打开监控页。默认都不勾。\n- 页面跟着岛屿的面板大小（设置 → 外观）排版：窄于 600 像素时排成一栏，程序列表在下面；更宽时两栏，程序列表在右边。多出来的高度给图表和程序列表。在插件设置的「监控页排版」里可以固定成两栏或一栏。\n- 曲线默认只记页面开着时的数据。勾选「后台记录曲线」后，页面关着时插件也每秒记一次 CPU、GPU 和网速，打开页面就能看到最近五分钟。默认不勾。\n\n## 开销\n\n- 只在需要时读取：监控页打开时每秒一次（程序列表每 3 秒），收起条有勾选项时每 2 秒一次，勾了「后台记录曲线」时页面关着也每秒读一次 CPU、GPU 和网速，都没有时不读。\n- 收起条项目和「后台记录曲线」都没勾时，插件在空闲 60 秒后停下，打开页面时再启动；勾了就一直运行（插件卡片上会写原因）。\n- 运行时是一个 Windows 自带的 PowerShell 进程，常驻内存约 60–120 MB（大部分是 PowerShell 本身；空进程约 57 MB，开着监控页读数时约 85 MB）。\n\n## 数据来源\n\n都不需要管理员权限，也不联网：\n\n- CPU、每个核心、内存：Windows 性能计数器。\n- 网速：网卡的收发字节数。\n- 程序：WMI 的 `Win32_Process`（一次查询读完所有进程），两次读取之间的 CPU 时间。\n- CPU 温度：WMI 的 ACPI 温度区（`Win32_PerfFormattedData_Counters_ThermalZoneInformation`），取最热的一个。很多台式机主板不提供，会显示 -；这个温度通常是主板测的，比 CPU 核心温度低。\n- GPU：`nvidia-smi`，至多每 2 秒一次。没有 NVIDIA 显卡时显示 —。\n- 电池：`Win32_Battery`，每 10 秒一次。\n\n## 权限\n\n不需要任何权限。\n\n## 示例演示了什么\n\n自定义界面页面（`webview`）和收起条上的列（`status.update` 的 `cells`，能力 `statusCells`；旧版岛屿只显示文字）。\n\n## 作者\n\nShengLin1001 在 [TixXin/fly-island#7](https://github.com/TixXin/fly-island/pull/7) 里把系统监控做成了岛屿的内置功能，监控页的版式、样式和收起条的设计都来自那里。TixXin 把它改成了市场插件：读取部分用 PowerShell 重写，收起条改用插件接口 `status.update` 的列。\n\n## English\n\nDesigned by ShengLin1001 as a built-in feature in TixXin/fly-island#7; turned into a market plugin by TixXin (data reading rewritten in PowerShell, the bar drawn through `status.update` cells).\n\n\nAdds a System page: CPU load with five minutes of history, one bar per logical core and the CPU temperature; GPU load, temperature, memory and power (NVIDIA only); memory; download and upload speed; the battery; and the programs using the most CPU or memory (up to ten, as many as the page's height fits). The page follows the island's panel size: one column with the programs below when narrower than 600 px, two columns otherwise; the plugin's \"Monitor page layout\" setting can fix it to one or two. Tick the plugin's settings to show CPU load, memory, CPU or GPU temperature as small columns on the collapsed bar; they turn yellow and red as they climb.\n\nIt reads only while the page is open (every second) or the bar shows figures (every 2 s); with \"record the charts in the background\" ticked it also reads CPU, GPU and network every second while the page is closed, so the charts show the last five minutes when it opens. It needs no administrator rights and never goes online. The CPU temperature is the hottest ACPI thermal zone, which many desktops do not have.",
+      "changelog": "# 更新记录\n\n## 1.3.0\n\n- 监控页跟着面板大小排版。岛屿 0.3.5 起所有页面都用「外观」里设的面板大小（宽 480–800、高 360–640），监控页以前只按 760 × 230 排：面板一高，各行之间拉出大段空白；程序列表固定 6 行，右栏下半截空着。现在多出来的高度给图表和程序列表：CPU、GPU 的曲线和核心、引擎条，以及网速曲线跟着变高，程序列表能放几行就显示几行（最多 10 行）。\n- 页面窄于 600 像素时（例如默认面板）排成一栏，程序列表放到下面。插件设置里新增「监控页排版」：自动（默认）、两栏、一栏。\n- CPU、GPU 的曲线一直放在数字下面、核心和引擎上面，不再在右边挤一小块。读不到引擎的显卡，曲线占满 GPU 这一格，不留空条。\n\n## 1.2.3\n\n- 展开放大调大（如 1.15）时，岛变窄，监控页以前会藏起 CPU、GPU、网速的曲线和内存百分比，各行之间只剩空白。现在它们都留着：网速曲线和内存百分比照常显示；CPU、GPU 那一栏太窄时，曲线挪到数字下面、核心和引擎上面，显卡名不再被挤成省略号。\n\n## 1.2.2\n\n- 打开监控页更快出数字：读程序列表从逐个进程取 CPU 时间（几百个进程要 2 秒多，打开页面时还会连读两次）改成一次 WMI 查询（约 0.1 秒）。程序列表从打开后 6 秒左右缩到 2 秒左右；每 3 秒读程序时页面也不再顿一下。\n\n## 1.2.1\n\n- 修复：监控页刚打开、还没加载好时插件就开始发读数，开着「后台记录曲线」时读数会抢在记录的曲线前面。现在页面加载好之后才发读数，记录的曲线先到。\n\n## 1.2.0\n\n- 任何显卡都有 GPU 占用：读 Windows 自带的 GPU 计数器（和任务管理器的数字一致），AMD、Intel 也有，不再只认 NVIDIA。GPU 下面多一排引擎条：3D、复制、视频解码、视频编码。计数器读一次要 0.3–1 秒，放在后台线程里每 2 秒读一次，只在监控页打开时读，不拖慢每秒的刷新。\n- CPU 下面是每个核心，GPU 下面是它的引擎，一一对应。核心很多（32 个以上）时竖条间距变窄，不会挤出页面。完全读不到 GPU 的电脑，CPU 占满这一行。\n- 浅色岛屿底色上也能看清：岛屿 0.3.4 起把墨色告诉不套卡片的页面，图表颜色也换成在浅底上看得清的深一档。\n- 修复：程序图标存进了页面状态，看过的程序一多就超过岛屿给页面的 64 KB，曲线历史也跟着存不下。现在图标只在页面打开期间保留，插件自己缓存，再打开时重新发过去。\n- 打开页面后程序列表 1 秒左右就出来（以前要等 3 秒），等待时显示占位行，不会跳动。读程序路径只读排在前面的几个，不再每 3 秒对所有进程读一遍。\n- 曲线刚打开时至少按一分钟铺开，不再只在最右边一小段。鼠标停在 CPU、GPU、网速上显示最近 5 分钟的平均和最高。\n- 内存一行加上百分比；占用超过整机 20% 的程序数字变红。\n- 程序一栏右上角加了「打开任务管理器」按钮。\n\n## 1.1.0\n\n- 监控页重新排版：不再套卡片，直接画在岛上；岛在这一页变宽（760px），左边是 CPU、GPU、每个核心、内存、网速，右边是最占 CPU 或内存的 6 个程序，不再出现滚动条。需要 FocuSD Island 0.3.4 或更新，旧版岛屿照旧显示窄页面。\n- 程序带上自己的图标（每个程序只读一次）；系统进程这类读不到图标的显示首字母。\n- CPU、GPU、内存各有一个小圆环；显存、显卡功耗和电池放在一行，电脑上没有的就不显示。\n\n## 1.0.3\n\n- 新设置「后台记录曲线」（默认关）：监控页关着时也每秒读一次 CPU、GPU 和网速，打开页面时曲线带着最近五分钟，不再只有打开之后的数据。开着时插件一直运行（约 80 MB 的 PowerShell 进程）。\n- 曲线从一分钟加长到五分钟（每秒一个点）。\n\n## 1.0.2\n\n- 修复：监控页只偶尔刷新，「程序」一栏一直是空的。插件等岛屿消息时的超时在 Windows PowerShell 5.1 上不生效，两次消息之间读数就停住了（issue #12）。现在每秒刷新一次，程序列表每 3 秒更新。\n\n## 1.0.1\n\n- 作者改为 ShengLin1001（插件的设计来自他的 PR #7）。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本：监控页（CPU、每个核心、GPU、内存、网速、电池、最忙的程序），收起条上可选的 CPU、内存和温度。",
       "download": {
-        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.system-monitor-1.2.0.zip",
-        "sha256": "0f30d80127fe42dd5a2a01ef02f83d7c9d04903aeba1931eeb6775b41aba0818",
-        "size": 26864
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.system-monitor-1.3.0.zip",
+        "sha256": "2a7b5949dc58eced77194b4e90f416ce87a20ae482d68cc2c4cae2369f364e2d",
+        "size": 29314
       },
       "authorSignature": {
         "keyId": "0c663505c8e1d524",
-        "signature": "0hPkSTQeXPiP6fDFf0HF5DqcVSVFkDCFa/wHYhXD8CYQuxDUz7vDvhGAUMPw4NS2xYuutX69qwDaegtsJgotCg=="
+        "signature": "UvdsYT+JLW4ACs17kBme72ZsOZPk4scwDAgTaD4YlungcH1ExRoZteB9+Tm+RW4jN+diiYfuwK46SsCL1Rm9DQ=="
       },
       "authorKeys": [
         {
@@ -219,10 +219,10 @@
         "en": "Todo progress ring (example)"
       },
       "description": {
-        "zh-CN": "在岛上加一个页面，用一个圆环画出今天的待办完成了多少，待办一变就跟着动。页面是插件自己写的 HTML（自定义界面），只能和插件进程通信，不能联网。用 Windows 自带的 PowerShell 运行。",
-        "en": "Adds an island page with a ring showing how much of today's todos is done; it moves as soon as they change. The page is the plugin's own HTML (custom UI) that can only talk to the plugin process and cannot go online. Runs on the PowerShell built into Windows."
+        "zh-CN": "在岛上加一个页面，用一个圆环画出今天的待办完成了多少，并列出接下来的几条；收起条上也有一个小环和「完成数/总数」。待办一变就跟着动。页面是插件自己写的 HTML（自定义界面），只能和插件进程通信，不能联网。用 Windows 自带的 PowerShell 运行。",
+        "en": "Adds an island page with a ring showing how much of today's todos is done and the next few to do, plus a small ring with done/total on the collapsed bar; both move as soon as todos change. The page is the plugin's own HTML (custom UI) that can only talk to the plugin process and cannot go online. Runs on the PowerShell built into Windows."
       },
-      "version": "1.0.1",
+      "version": "1.1.0",
       "apiVersion": 2,
       "author": "TixXin",
       "homepage": "https://github.com/TixXin/fly-island/tree/main/plugins/examples/dev.focusd.todo-ring",
@@ -237,16 +237,16 @@
         "todos",
         "productivity"
       ],
-      "readme": "# 待办进度环（示例）\n\n在岛上加一个页面，用圆环画出今天的待办完成了多少。\n\n## 怎么用\n\n- 安装并启用后，岛上会多一个「待办进度环」页面。\n- 完成或新增待办时，圆环会立刻跟着变。\n\n## 权限\n\n- `todos:read`：读取今天的待办。\n\n## 示例演示了什么\n\n自定义界面页面：页面是插件自己写的 HTML，只能通过消息和插件进程通信，不能联网，也不能调用岛屿的任何命令。\n\n## English\n\nAdds an island page with a ring showing how much of today's todos are done. The page is the plugin's own HTML; it can only talk to the plugin process and cannot reach the network.",
-      "changelog": "# 更新记录\n\n## 1.0.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本。",
+      "readme": "# 待办进度环（示例）\n\n在岛上加一个页面，用圆环画出今天的待办完成了多少，并列出接下来的几条；收起条上也有一个小环和「完成数/总数」。\n\n## 怎么用\n\n- 安装并启用后，岛上会多一个「待办进度环」页面。\n- 完成或新增待办时，圆环会立刻跟着变；全部完成后变绿。\n- 收起条上的小环在 外观 → 收起条上的项目 里可以调位置或隐藏；今天没有待办时不显示。点它打开进度环页面。\n- 收起条中间也显示剩余待办数时，数量会出现两处；嫌重复可以在 设置 → 任务 里关掉「空闲时显示剩余待办数」，交给这个小环。\n\n## 权限\n\n- `todos:read`：读取今天的待办。\n\n## 示例演示了什么\n\n自定义界面页面：页面是插件自己写的 HTML，只能通过消息和插件进程通信，不能联网，也不能调用岛屿的任何命令。\n\n收起条状态：`status.update` 带 `ring`（0–1）画小进度环，`text` 留给读屏和不支持小环的旧版岛屿。\n\n## English\n\nAdds an island page with a ring showing how much of today's todos are done and the next few to do, plus a small ring with done/total on the collapsed bar. The page is the plugin's own HTML; it can only talk to the plugin process and cannot reach the network.",
+      "changelog": "# 更新记录\n\n## 1.1.0\n\n- 收起条上多了一个小环和「完成数/总数」，待办一变就更新；今天没有待办时不显示。可以在 外观 → 收起条上的项目 里调位置或隐藏。\n- 页面重画：渐变圆环，百分比写在环中间，旁边列出接下来的 3 条待办；全部完成后圆环变绿。刷新按钮改成右上角的小图标。\n\n## 1.0.1\n\n- 作者改为 TixXin。功能没有变化。\n\n## 1.0.0\n\n- 第一个版本。",
       "download": {
-        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.0.1.zip",
-        "sha256": "c30e625e026a64b4d74048a72a11e6b2871b71f2709571ad46f133e26532d04d",
-        "size": 6519
+        "url": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.todo-ring-1.1.0.zip",
+        "sha256": "078818fe175a47be1d77456487f281ec879816ca6c0cb7c7f44ea159bdad33a3",
+        "size": 8381
       },
       "authorSignature": {
         "keyId": "0c663505c8e1d524",
-        "signature": "rd2vwH6ugxGbusL2EybvvL20XU8mv9mXigOQQEPYOUU8yOgmX6wARJivLQoSzGnJXzTlg0YqRgru1h9HcqkMCA=="
+        "signature": "tamKy9PhDFFGQkXY0G6Y23sR+WvnQsth5jZfxcROcA8TQ16wKPvJEwD4pUH+RURkRIMByPTpn/IehFg90NbGBw=="
       },
       "authorKeys": [
         {
