@@ -7,6 +7,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { download, downloadTextIfPresent, listReleases } from "./github.mjs";
+import { fixedPackageSource, followedPackage, sourceVersion } from "./official.mjs";
 import { pickRelease } from "./submissions.mjs";
 import { scanFolder } from "./secrets.mjs";
 import { MAX_SIGNATURE_BYTES, parseSignature, verifyPackage } from "./signing.mjs";
@@ -25,7 +26,14 @@ export const sha256 = (buffer) => createHash("sha256").update(buffer).digest("he
 
 /** Where the newest package of a submission is: { url, version|null, tag|null, signatureUrl|null }, or null when there is none. */
 export async function locatePackage(submission) {
-  if (submission.package) return { url: submission.package, version: null, tag: null, signatureUrl: `${submission.package}.sig` };
+  if (submission.package) {
+    // An official plugin's source may already be newer than its fixed address (lib/official.mjs).
+    const source = fixedPackageSource(submission);
+    const followed = source && followedPackage(submission, source, await sourceVersion(submission, source));
+    if (followed) return followed;
+    // The version the address names, so a newer listed version is never replaced by it.
+    return { url: submission.package, version: source?.version ?? null, tag: null, signatureUrl: `${submission.package}.sig` };
+  }
   return pickRelease(await listReleases(submission.repo), submission);
 }
 

@@ -31,7 +31,7 @@ scripts/                   索引构建、PR 检查、签名
 
 - 已上架的版本不会重新下载，也不会改变。
 - 新版本申请更多权限、加入 webview 页面或换了运行时，不会自动上架，而是开一个 `review-needed` issue；维护者审核后在 `plugins/<id>.json` 写 `"approved": "<版本>"`。
-- 官方插件（发布者 `TixXin`）可以用 `"package"` 指定固定的下载地址，更新时由维护者改这个地址（岛屿仓库里 `pnpm plugins:index` 打好新包后，把这里的地址改成新 zip）。作者签名取地址加 `.sig`（`pnpm plugins:index` 一起写出），用官方作者密钥 `0c663505c8e1d524` 签名。
+- 官方插件（发布者 `TixXin`）可以用 `"package"` 指定固定的下载地址，地址是 `raw.githubusercontent.com` 上的 `<id>-<版本>.zip`、又写了 `path` 时，每次构建都读 `path` 里的清单：源码的版本比地址里的新，就改用同一文件夹里那个版本的 zip（`scripts/lib/official.mjs`），不用再手动改地址。岛屿仓库只有打好包、签好名（`pnpm plugins:index`）的版本才能进 `main`；跟过来的版本仍要通过作者签名，要的权限比上一版多时和普通发布一样等待审核（`approved`）。作者签名取地址加 `.sig`（`pnpm plugins:index` 一起写出），用官方作者密钥 `0c663505c8e1d524` 签名。
 - 已验证发布者：每次构建检查 GitHub 组织的 `is_verified`，或提交里 `domain` 的 `https://<domain>/.well-known/focusd-publisher.json`；通过时条目带 `"verified": { "via": "github" }` 或 `{ "via": "domain", "domain": "..." }`，检查失败（网络问题）时保留原状态。官方发布者不检查。
 - 提交写了 `signingKeys` 的插件只收录作者签了名的版本（Release 里的 `<zip>.sig`），签名和作者公钥写进索引条目的 `authorSignature`、`authorKeys`，由岛屿校验。见 [CONTRIBUTING.md](CONTRIBUTING.md#作者签名)。
 - 市场详情里的说明和版本历史取自插件包里的 `README.md` / `CHANGELOG.md`，包里没有时取插件仓库 Release 标签处（官方插件为默认分支）`path` 文件夹里的同名文件。
