@@ -254,6 +254,88 @@
           "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
         }
       ]
+    },
+    {
+      "id": "io.github.shenglin1001.battery",
+      "name": {
+        "zh-CN": "电量",
+        "en": "Battery"
+      },
+      "description": {
+        "zh-CN": "收起条上多一排并排立着的小电池：这台电脑和已连接的蓝牙设备各一个（最多 4 个），颜色各不相同，电量低的变黄、变红；不显示数字，鼠标悬停或点开页面看具体电量。岛上还有一个页面列出全部设备。读 Windows 已经知道的电量，AirPods 这类苹果耳机则听它们自己广播的电量（连着时每分钟听 5 秒，精确到 10%）；不连接设备、不需要管理员权限、不联网。插件一直运行，多一个 PowerShell 进程。",
+        "en": "Adds a row of small upright batteries to the collapsed bar: one for this computer and one for each connected Bluetooth device (up to 4), each in its own color, yellow or red when low; no numbers there, hover or open the page for them. A page lists every device. Reads the levels Windows already knows, and for AirPods-like Apple earphones the levels they broadcast (5 seconds of listening each minute while connected, in steps of 10%); it connects to nothing, needs no administrator rights and never goes online. The plugin keeps running: one more PowerShell process."
+      },
+      "version": "1.0.0",
+      "apiVersion": 2,
+      "minAppVersion": "0.3.5-beta.6",
+      "author": "ShengLin1001",
+      "homepage": "https://github.com/ShengLin1001/fuyu-plugin/tree/main/battery",
+      "permissions": [],
+      "runtime": "powershell",
+      "publisher": "ShengLin1001",
+      "repo": "ShengLin1001/fuyu-plugin",
+      "categories": [
+        "information"
+      ],
+      "readme": "# 电量\n\n收起条上用一排并排立着的小电池显示这台电脑和已连接蓝牙设备的电量，岛上多一个「电量」页面。\n\n## 怎么用\n\n- 安装并启用后，收起条上多一个项目（可以在 外观 → 收起条上的项目 里调位置或隐藏），是几个并排立着的小电池，里面的色块高度就是电量，不显示数字：\n  - 第一个是这台电脑（没有电池的台式机没有这一个），后面是已连接、且读得到电量的蓝牙设备，按名字排，一共最多 4 个。\n  - 每个位置一种颜色（绿、蓝、紫、粉），同一个设备的位置和颜色不随电量变化。\n  - 电量 20% 及以下变黄，10% 及以下变红；电脑接着电源时不变色。\n  - 鼠标停在上面显示每个设备的名字和百分比。\n  - 这种画法需要支持「折叠条上的电池」的岛屿；旧版岛屿在这里显示成一串百分比文字。\n- 点这个项目打开「电量」页面：这台电脑（接通电源，或用电池时大约还能用多久）、已连接的蓝牙设备，以及没连接但 Windows 还记着电量的设备。\n- 每 20 秒读一次；打开页面时立刻读一次。\n\n## 哪些蓝牙设备有电量\n\n大多数设备读的是 Windows 自己已经知道的电量，也就是 设置 → 蓝牙和其他设备 里设备名旁边那个数字：\n\n- 低功耗蓝牙（BLE）的鼠标、键盘、手柄等：设备自己上报。\n- 经典蓝牙耳机：通过免提（Hands-Free）协议上报的才有。\n- 其余已连接的设备 Windows 没有电量，页面上会列出并写明「Windows 没有它的电量」。\n\nAirPods 这类苹果耳机不向 Windows 上报电量，Windows 设置里也看不到，但它们自己一直在用低功耗蓝牙广播电量。连着这样的耳机时，插件每分钟听 5 秒广播：\n\n- 收起条上的电池和页面右侧的数字取两只耳机里较低的那个；页面那一行写出左、右耳和充电盒各自的电量（广播里没有的不写）。\n- 广播只精确到 10%，所以是 30%、40% 这样的整十数。\n- 插件启动或耳机刚连上后，要等下一次读取（约 20 秒）才有数字；耳机收进盒子不再广播时，保留最后一次的数字直到断开。\n- 广播里没有能认出「这是你的耳机」的地址，只有型号。附近有别人同型号的耳机时，取信号最强（离电脑最近）的那一副，极少数情况下可能显示成别人的。\n\n设备断开后 Windows 仍保留最后一次的数字，所以「未连接」那一组的电量可能已经过时。\n\n## 开销\n\n- 插件一直运行（收起条上的项目在插件停止时会被清空），是一个 Windows 自带的 PowerShell 进程，常驻内存几十 MB。\n- 一次读取是几十毫秒：电脑电量用 `GetSystemPowerStatus`，蓝牙电量直接读设备属性（cfgmgr32 的 `CM_Get_DevNode_Property`）。启动时用 `Add-Type` 编译一小段 C#（约 0.4 秒）；没有用 `Get-PnpDeviceProperty`，它每个设备节点要几秒到十秒。\n- 只有连着苹果耳机时才听广播：第一次用系统自带的 C# 编译器（.NET Framework 的 `csc.exe`）编译 `adverts.cs`（约 1 秒），之后每分钟被动扫描 5 秒，只听不发。没有这样的耳机时不编译也不扫描。\n- 这种「运行时编译、从内存加载」的做法，有些杀毒软件和 EDR 会拦截或报毒。被拦时插件照常运行，只是不显示苹果耳机的电量，日志里有一行 `no earphone levels`。\n- 不连接设备、不需要管理员权限、不联网。\n\n## 开发\n\n测试用岛屿的模拟宿主：在仓库根目录 `npm install`，再 `npm test`（只在 Windows 上跑）；只测这个插件就在本目录运行 `node --test`。\n\n## 权限\n\n不需要任何权限。\n\n## English\n\nAdds a row of small upright batteries to the collapsed bar: one for this computer and one for each connected Bluetooth device (up to 4), each in its own color, yellow from 20% and red from 10%; no numbers there, hover or open the page for them. A page lists every device. It reads the levels Windows already knows (the number next to a device in Settings → Bluetooth & other devices) every 20 seconds. AirPods-like Apple earphones report nothing to Windows but broadcast their levels over Bluetooth LE: while such earphones are connected the plugin listens for 5 seconds each minute and shows the emptier pod's level, in steps of 10%. The broadcast carries a model, not an address, so with the same model nearby the strongest signal counts as yours. No permissions, no administrator rights, nothing goes online.",
+      "changelog": "# 更新记录\n\n## 1.0.0\n\n- 第一个版本：收起条上并排立着的小电池（这台电脑和已连接的蓝牙设备），以及「电量」页面。\n- AirPods 这类苹果耳机的电量从它们的蓝牙广播里读（Windows 没有）。",
+      "download": {
+        "url": "https://github.com/ShengLin1001/fuyu-plugin/releases/download/battery-v1.0.0/io.github.shenglin1001.battery-1.0.0.zip",
+        "sha256": "e862c6e6c89f222c64938c505098165b55aaeecef0f11a7c526c26c099947691",
+        "size": 17637
+      },
+      "authorSignature": {
+        "keyId": "71b7ee8d10079fe7",
+        "signature": "YpIv3LGRVZ78hRNc1mGH/nxHdBQKOQF4Z/d76qkvh8StF65Wp3dcUVFyuHXT5T9NNktcD96cjSDFPZA8UCC0AQ=="
+      },
+      "authorKeys": [
+        {
+          "keyId": "71b7ee8d10079fe7",
+          "publicKey": "5kE88xs/aKG3HHpy8/Y32xrrl2VxpRHb8w7pNqaL8IE="
+        }
+      ]
+    },
+    {
+      "id": "io.github.shenglin1001.timesync",
+      "name": {
+        "zh-CN": "校时",
+        "en": "Time sync"
+      },
+      "description": {
+        "zh-CN": "防止电脑时间和时区跑偏：每 5 分钟、开机、唤醒和解锁时向 Windows 的时间服务器（默认 time.windows.com）问一次时间，差 2 秒以上就立即校时，差 1 分钟以上会在岛上提示。校时靠一个开机和每次联网时也会自己运行的计划任务，安装时要管理员确认一次。还可以固定时区，被别的程序改掉时自动改回。主板电池没电、冷启动后时间慢几个小时的电脑尤其需要。",
+        "en": "Keeps the clock and the time zone right: every 5 minutes, at startup, on wake and on unlock it asks the time server Windows uses (time.windows.com by default) for the time, resyncs at once when the clock is off by more than 2 seconds and tells you when it was off by a minute or more. The resync runs through a scheduled task that also runs by itself at startup and on every network connection; installing it asks for administrator rights once. It can also fix the time zone and put it back when something changes it. Most useful on computers whose motherboard battery is flat and that start hours behind."
+      },
+      "version": "0.1.0",
+      "apiVersion": 2,
+      "minAppVersion": "0.3.5-beta.6",
+      "author": "ShengLin1001",
+      "homepage": "https://github.com/ShengLin1001/fuyu-plugin/tree/main/timesync",
+      "permissions": [
+        "island:notify"
+      ],
+      "runtime": "powershell",
+      "publisher": "ShengLin1001",
+      "repo": "ShengLin1001/fuyu-plugin",
+      "categories": [
+        "utilities"
+      ],
+      "readme": "# 校时\n\n防止电脑时间和时区跑偏的[浮屿](https://github.com/TixXin/fuyu)插件。\n\n主板纽扣电池没电的电脑，冷启动后时钟可能慢几个小时；Windows 自己要等好几个小时才校一次，开机时网络还没好、校时失败后还会越等越久。这个插件发现时间不准就立即校正。\n\n## 怎么用\n\n1. 安装并启用后，岛上多一个「校时」页面，三行：\n   - **时钟**：和时间服务器差多少、什么时候测的；装了校时任务后有「立即校时」按钮。\n   - **校时任务**：点「安装」，Windows 会弹出管理员确认，同意一次即可。\n   - **时区**：当前时区；点「固定」后，别的程序改了时区，插件会改回来并提示。\n   插件卡片的设置页「操作」里也有「安装校时任务」「立即校时」「卸载校时任务」三个按钮。\n2. 之后不用管它：\n   - 岛启动时、每 5 分钟、电脑唤醒和解锁时，插件各测一次时间。刚唤醒没联网时，过 15 秒再测，最多 3 次。\n   - 差 2 秒以上就启动校时任务，8 秒后再测一次。\n   - 差 1 分钟以上时，在岛上提示「时钟慢了 3 小时 28 分」，并说明是否已经校正。\n   - 没装校时任务时，时钟差 1 分钟以上会提示安装，一周最多一次。\n\n## 校时任务\n\n`w32tm /resync` 要管理员权限，插件没有，所以校时交给计划任务 `\\ResyncTimeOnNetwork`（定义在 [resync-task.xml](resync-task.xml)）：\n\n- 以 SYSTEM 身份运行 `net start w32time & w32tm /resync /rediscover`。\n- 自己也会在开机 1 分钟后、每次连上网络 15 秒后运行，岛没开也一样。\n- 允许已登录的用户启动它，插件因此不用管理员权限就能校时。别人只能让它校一次时，不能改它。\n- 不改注册表、不改时间服务的配置，时间服务器仍是 Windows 设置的那个。\n- 卸载插件前，先在页面上点「卸载」删掉任务；忘了的话，在管理员 PowerShell 里运行 `Unregister-ScheduledTask -TaskName ResyncTimeOnNetwork -Confirm:$false`。\n- 以前手动装过同名任务的，插件会提示「没有权限启动它」，点「重新安装」换成插件的版本。\n\n## 设置\n\n- **固定时区**：Windows 时区 ID（如 `China Standard Time`、`Pacific Standard Time`），留空不管时区。页面上点「固定」会填成当前时区。要换时区，先取消固定，否则插件会改回来。\n- **提示语言**：岛上弹出的提示用中文还是英文。插件读不到岛的界面语言，页面本身跟着岛的语言。\n\n## 权限与开销\n\n- 权限：`island:notify`，用来在岛上提示时钟偏差和时区被改。\n- 联网：每次测时间向 Windows 设置的时间服务器（默认 `time.windows.com`）发一个 48 字节的 NTP 请求（UDP 123 端口）。\n- 按需运行：测完 1 分钟内没事就退出，不常驻。\n- 管理员权限只在安装、卸载校时任务时要一次。\n\n## 限制\n\n- 只能缩短时间错的时长：开机到联网之间、联网到插件或任务运行之间（最长 5 分钟），时间仍是错的。根治要换主板 CR2032 电池。\n- 校园网等需要网页认证的网络，认证之前测不到时间，认证后最多 5 分钟内校正。\n\n## 开发\n\n测试用岛屿的模拟宿主和一个假时间服务器：在仓库根目录 `npm install`，再 `npm test`（只在 Windows 上跑）；只测这个插件就在本目录运行 `node --test`。装了校时任务的电脑上，测试会真的触发一次校时（对时 time.windows.com，不影响结果）。\n\n```sh\nnpx fuyu-plugin dev        # 以开发模式加载进岛屿\nnpx fuyu-plugin validate\nnpx fuyu-plugin pack --sign\n```\n\n## English\n\nKeeps the clock and the time zone right. At startup, every 5 minutes, on wake and on unlock it asks the time server Windows uses for the time (one SNTP request); when the clock is off by more than 2 seconds it starts the scheduled task `\\ResyncTimeOnNetwork`, which runs `w32tm /resync /rediscover` as SYSTEM, and it tells you when the clock was off by a minute or more. The task also runs by itself at startup and on every network connection, and lets signed-in users start it, so the plugin needs no administrator rights; installing or removing it from the plugin's page asks for them once. Optionally it fixes the time zone and puts it back when something changes it. Permission: `island:notify`.",
+      "changelog": "# 更新记录\n\n## 0.1.0\n\n- 第一版：测时钟偏差，偏差超过 2 秒时通过计划任务校时；安装、卸载校时任务；固定时区。",
+      "download": {
+        "url": "https://github.com/ShengLin1001/fuyu-plugin/releases/download/timesync-v0.1.0/io.github.shenglin1001.timesync-0.1.0.zip",
+        "sha256": "c0987cd53058d369a5a7f4fab0523d55dd414fb10cc4ad46fb50955d791ed4c4",
+        "size": 16849
+      },
+      "authorSignature": {
+        "keyId": "71b7ee8d10079fe7",
+        "signature": "Vu68WyhIjOtL76rUT6xHB1zmsgFIRaGlPpczIRfAp85DPydAwD1TV1SqSDSMNV9IXOMb0ne5Rw+RJXpJlpw2Cw=="
+      },
+      "authorKeys": [
+        {
+          "keyId": "71b7ee8d10079fe7",
+          "publicKey": "5kE88xs/aKG3HHpy8/Y32xrrl2VxpRHb8w7pNqaL8IE="
+        }
+      ]
     }
   ]
 }
