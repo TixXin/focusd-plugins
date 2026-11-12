@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-09T17:50:03.921Z",
+  "updatedAt": "2026-11-12T08:52:21.413Z",
   "plugins": {
     "dev.focusd.github-issues": {
       "count": 0,
@@ -25,6 +25,14 @@
     "dev.focusd.todo-ring": {
       "count": 0,
       "url": "https://github.com/TixXin/focusd-plugins/discussions/7"
+    },
+    "io.github.shenglin1001.battery": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/13"
+    },
+    "io.github.shenglin1001.timesync": {
+      "count": 0,
+      "url": "https://github.com/TixXin/focusd-plugins/discussions/14"
     }
   }
 }
