@@ -1,6 +1,6 @@
 // Rebuilds index.json from plugins/*.json. For each plugin it finds the newest
 // package (the newest GitHub release, or the fixed "package" address of an
-// official plugin), checks it and lists it. A version that is already listed
+// official plugin, or a newer one its source names: lib/official.mjs), checks it and lists it. A version that is already listed
 // is never downloaded again, and a listed version never changes. An automatic
 // update that asks for more (permissions, webview, runtime) is held back and
 // reported for review instead of being listed. README.md / CHANGELOG.md come
@@ -83,8 +83,9 @@ export async function buildEntry(submission, previous, deps = { locatePackage, f
     return { entry: { ...previous, ...marketDetails(submission) }, held: null, errors: [`${entry.version} is already listed with a different package; publish a new version.`], warnings };
   }
   // A fixed "package" address only changes through a reviewed pull request, and
-  // "approved" names a version a maintainer has looked at.
-  const reviewed = submission.package || submission.approved === entry.version;
+  // "approved" names a version a maintainer has looked at. A version followed from an
+  // official plugin's source (lib/official.mjs) is not that address: it is reviewed like a release.
+  const reviewed = (submission.package && location.url === submission.package) || submission.approved === entry.version;
   const reasons = previous && !reviewed ? reviewReasons(previous, entry) : [];
   if (reasons.length > 0) return { entry: previous, held: { id: entry.id, version: entry.version, reasons }, errors: [], warnings };
   return { entry, held: null, errors: [], warnings };
