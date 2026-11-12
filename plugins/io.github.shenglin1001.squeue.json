@@ -1,0 +1,14 @@
+{
+  "id": "io.github.shenglin1001.squeue",
+  "repo": "ShengLin1001/fuyu-plugin",
+  "publisher": "ShengLin1001",
+  "categories": ["developer"],
+  "path": "squeue",
+  "tagPrefix": "squeue-",
+  "signingKeys": [
+    {
+      "keyId": "71b7ee8d10079fe7",
+      "publicKey": "5kE88xs/aKG3HHpy8/Y32xrrl2VxpRHb8w7pNqaL8IE="
+    }
+  ]
+}
