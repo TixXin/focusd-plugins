@@ -1,0 +1,17 @@
+{
+  "id": "dev.focusd.weather",
+  "repo": "TixXin/fuyu",
+  "publisher": "TixXin",
+  "categories": [
+    "information",
+    "utilities"
+  ],
+  "package": "https://raw.githubusercontent.com/TixXin/fuyu/main/plugins/packages/dev.focusd.weather-1.0.0.zip",
+  "path": "plugins/examples/dev.focusd.weather",
+  "signingKeys": [
+    {
+      "keyId": "0c663505c8e1d524",
+      "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
+    }
+  ]
+}
