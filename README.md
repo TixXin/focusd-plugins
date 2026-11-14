@@ -25,7 +25,7 @@ scripts/                   索引构建、PR 检查、签名
 | 工作流 | 触发 | 做什么 |
 |---|---|---|
 | `Check submission` | 每个 PR | 只读权限、没有密钥。检查提交格式、所有权，下载并校验插件包，扫描包里遗留的密钥（`scripts/lib/secrets.mjs`），把权限等信息写进运行摘要 |
-| `Update index` | 定时（名义上每小时，GitHub 不保证准点，实际常隔几小时）、`main` 变化时、手动 | 找出每个插件的最新 Release，校验后更新 `index.json`，用 `release` 环境里的密钥签名并提交 |
+| `Update index` | 定时（名义上每小时，GitHub 不保证准点，实际常隔几小时）、`main` 变化时、手动 | 分两个 job：构建 job 没有密钥，找出每个插件的最新 Release、校验后生成 `index.json`；签名 job 只拿到这个文件，不装依赖，用 `release` 环境里的密钥签名并提交。所有 Actions 按提交号固定 |
 | `Update themes` | `main` 上的 `themes/` 变化时、手动 | 校验每个主题（`scripts/lib/themes.mjs`），按官方在前、其余按 id 排序写进 `themes.json` |
 | `Update likes` | 每小时、手动 | 每个上架插件在 Discussions 的 Announcements 分类里有一条点赞帖（正文开头是 `<!-- focusd-plugin: <id> -->`，新上架的插件由这个工作流自动开帖）；统计每条帖子的 👍，写进 `stars.json`。岛屿插件市场显示这个数字，卡片上的点赞按钮打开对应的帖子。和 `Update index` 排同一个队，不会同时推送 |
 
@@ -35,7 +35,8 @@ scripts/                   索引构建、PR 检查、签名
 - 已验证发布者：每次构建检查 GitHub 组织的 `is_verified`，或提交里 `domain` 的 `https://<domain>/.well-known/focusd-publisher.json`；通过时条目带 `"verified": { "via": "github" }` 或 `{ "via": "domain", "domain": "..." }`，检查失败（网络问题）时保留原状态。官方发布者不检查。
 - 提交写了 `signingKeys` 的插件只收录作者签了名的版本（Release 里的 `<zip>.sig`），签名和作者公钥写进索引条目的 `authorSignature`、`authorKeys`，由岛屿校验。见 [CONTRIBUTING.md](CONTRIBUTING.md#作者签名)。
 - 市场详情里的说明和版本历史取自插件包里的 `README.md` / `CHANGELOG.md`，包里没有时取插件仓库 Release 标签处（官方插件为默认分支）`path` 文件夹里的同名文件。
-- 切换到本仓库之前发布的岛屿仍然读岛屿仓库 `plugins/index.json`（旧密钥签名，只含官方插件），那份索引在岛屿仓库里继续维护。
+- 切换到本仓库之前发布的岛屿仍然读岛屿仓库 `plugins/index.json`（旧密钥签名，只含官方插件），那份索引在岛屿仓库里继续维护。0.3.8-beta.4 之后发布的岛屿只信任 CI 密钥 `e862885af5bba3dc`，`keys/trusted.json` 里也只有它。
+- `main` 有规则集 `main protection`：必须经 PR 合入、`Check submission` 必须通过，禁止强推和删除；`github-actions[bot]`（索引、点赞、主题的自动提交）可以绕过，管理员只能在 PR 上绕过。
 
 ## 维护者
 
