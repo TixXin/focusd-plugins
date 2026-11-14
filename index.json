@@ -167,6 +167,9 @@
           "keyId": "0c663505c8e1d524",
           "publicKey": "2iitOvXpSh/Vcciy2mRqSBEzxjOsD0u2LEvRUjvaEOI="
         }
+      ],
+      "platforms": [
+        "windows"
       ]
     },
     {
