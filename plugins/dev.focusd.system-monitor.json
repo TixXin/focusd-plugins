@@ -6,6 +6,9 @@
     "utilities",
     "information"
   ],
+  "platforms": [
+    "windows"
+  ],
   "package": "https://raw.githubusercontent.com/TixXin/fly-island/main/plugins/packages/dev.focusd.system-monitor-1.2.0.zip",
   "path": "plugins/examples/dev.focusd.system-monitor",
   "signingKeys": [
