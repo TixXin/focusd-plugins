@@ -37,7 +37,7 @@ export async function locatePackage(submission) {
   return pickRelease(await listReleases(submission.repo), submission);
 }
 
-function runCli(args) {
+export function runCli(args) {
   const result = spawnSync(process.execPath, [CLI, ...args], { encoding: "utf8" });
   return { ok: result.status === 0, output: `${result.stdout ?? ""}${result.stderr ?? ""}`.trim() };
 }

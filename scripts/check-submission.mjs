@@ -9,6 +9,7 @@
 //
 // Environment: BASE_SHA, PR_AUTHOR, AUTHOR_ASSOCIATION (from the workflow),
 // GITHUB_TOKEN (optional, for the API rate limit), GITHUB_STEP_SUMMARY.
+import { checkSource } from "./lib/source.mjs";
 import { loadThemes, THEME_FILE } from "./lib/themes.mjs";
 import { spawnSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
@@ -145,6 +146,12 @@ export async function checkPullRequest(root, { base, author, association }) {
         const signed = await readAuthorSignature(submission, location, entry.download.sha256, entry.id, entry.version);
         if (signed.error) errors.push(`${submission.id}: the newest release ${signed.error}.`);
         else notes.push(`- Signed by the author with key ${signed.fields.authorSignature.keyId}.`);
+      }
+      if (result.errors.length === 0) {
+        const source = await checkSource(submission, location, result.zip);
+        if (source.match) notes.push(`- The release is what \`fuyu-plugin pack\` makes from the source at ${location.tag}.`);
+        else if (source.skipped) notes.push(`- Not compared with the source: ${source.skipped}.`);
+        else errors.push(`${submission.id}: the newest release ${source.reason}. Build the release asset with \`fuyu-plugin pack\` from the committed files at that tag.`);
       }
       if (result.errors.length === 0) notes.push(...describe(indexEntry(result.manifest, submission, location.url, result.zip), result.warnings), "");
     } catch (error) {

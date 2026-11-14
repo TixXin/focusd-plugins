@@ -17,7 +17,7 @@ const RESERVED_NAMES = ["fuyu", "focusd"];
 const ID_PATTERN = /^[a-z0-9][a-z0-9.-]*$/;
 const REPO_PATTERN = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
-const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved", "path", "signingKeys", "domain", "platforms"]);
+const KEYS = new Set(["id", "repo", "publisher", "categories", "preRelease", "tagPrefix", "package", "approved", "path", "signingKeys", "domain", "platforms", "buildStep"]);
 /** A lower-case host name with a dot; no port, no IP address (verified publishers, publishers.mjs). */
 export const DOMAIN_PATTERN = /^(?=.{4,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 /** A folder inside the repository: segments of letters, digits, ".", "_" and "-", no ".." and no leading "/". */
@@ -31,7 +31,7 @@ export function submissionErrors(submission, fileName) {
   const errors = [];
   if (typeof submission !== "object" || submission === null || Array.isArray(submission)) return ["must be a JSON object."];
   for (const key of Object.keys(submission)) if (!KEYS.has(key)) errors.push(`unknown field "${key}".`);
-  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved, path: folder, signingKeys, domain, platforms } = submission;
+  const { id, repo, publisher, categories = [], preRelease, tagPrefix, package: packageUrl, approved, path: folder, signingKeys, domain, platforms, buildStep } = submission;
   if (typeof id !== "string" || id.length < 3 || id.length > 64 || !ID_PATTERN.test(id) || id.includes("..")) {
     errors.push(`"id" must be 3-64 characters of a-z, 0-9, "." and "-", like the plugin manifest.`);
   } else if (fileName !== `${id}.json`) {
@@ -48,6 +48,7 @@ export function submissionErrors(submission, fileName) {
   if (!Array.isArray(categories) || categories.some((name) => !CATEGORIES.includes(name))) {
     errors.push(`"categories" may only list: ${CATEGORIES.join(", ")}.`);
   }
+  if (buildStep !== undefined && typeof buildStep !== "boolean") errors.push(`"buildStep" must be true or false.`);
   if (platforms !== undefined && (!Array.isArray(platforms) || platforms.length === 0 || platforms.some((name) => !PLATFORMS.includes(name)))) {
     errors.push(`"platforms" must list one or more of: ${PLATFORMS.join(", ")}.`);
   }

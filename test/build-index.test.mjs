@@ -16,7 +16,7 @@ const manifest = (version, permissions = [], extra = {}) => ({
 const zip = Buffer.from("zip bytes");
 const listed = (version, permissions = []) => indexEntry(manifest(version, permissions), submission, `https://example.com/${version}.zip`, zip);
 
-function deps(version, permissions = [], extra = {}, docs = {}, repo = {}) {
+function deps(version, permissions = [], extra = {}, docs = {}, repo = {}, source = { match: true }) {
   const calls = { fetched: 0, repoDocs: [] };
   return {
     calls,
@@ -29,6 +29,7 @@ function deps(version, permissions = [], extra = {}, docs = {}, repo = {}) {
       calls.repoDocs.push(location.tag);
       return repo;
     },
+    checkSource: async () => source,
   };
 }
 
