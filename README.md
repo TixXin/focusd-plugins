@@ -36,7 +36,7 @@ scripts/                   索引构建、PR 检查、签名
 - 提交写了 `signingKeys` 的插件只收录作者签了名的版本（Release 里的 `<zip>.sig`），签名和作者公钥写进索引条目的 `authorSignature`、`authorKeys`，由岛屿校验。见 [CONTRIBUTING.md](CONTRIBUTING.md#作者签名)。
 - 市场详情里的说明和版本历史取自插件包里的 `README.md` / `CHANGELOG.md`，包里没有时取插件仓库 Release 标签处（官方插件为默认分支）`path` 文件夹里的同名文件。
 - 切换到本仓库之前发布的岛屿仍然读岛屿仓库 `plugins/index.json`（旧密钥签名，只含官方插件），那份索引在岛屿仓库里继续维护。0.3.8-beta.4 之后发布的岛屿只信任 CI 密钥 `e862885af5bba3dc`，`keys/trusted.json` 里也只有它。
-- `main` 有规则集 `main protection`：必须经 PR 合入、`Check submission` 必须通过，禁止强推和删除；`github-actions[bot]`（索引、点赞、主题的自动提交）可以绕过，管理员只能在 PR 上绕过。
+- `main` 只禁止强推和删除，还没有要求经 PR 合入的规则集：仓库在个人账户下，GitHub 不允许让 GitHub Actions 绕过规则集，而索引、点赞、主题三个工作流都直接推 `main`。要加的话，得先让它们改用有写权限的部署密钥推送。
 
 ## 维护者
 
