@@ -173,6 +173,7 @@ export function marketDetails(submission) {
     publisher: submission.publisher,
     repo: submission.repo,
     categories: [...new Set(submission.categories ?? [])],
+    ...(submission.platforms ? { platforms: [...new Set(submission.platforms)] } : {}),
     ...(submission.preRelease === true ? { preRelease: true } : {}),
   };
 }
@@ -203,6 +204,7 @@ export function indexEntry(manifest, submission, url, zip, docs = {}) {
     ...(optionalPermissions(manifest).length > 0 ? { optionalPermissions: optionalPermissions(manifest) } : {}),
     runtime: runtimeRequirement(manifest.runtime),
     ...((manifest.contributes?.views ?? []).some((view) => view.template === "webview") ? { webview: true } : {}),
+    ...(manifest.platforms?.length > 0 ? { platforms: [...new Set(manifest.platforms)] } : {}),
     ...marketDetails(submission),
     ...(docs.readme ? { readme: docs.readme } : {}),
     ...(docs.changelog ? { changelog: docs.changelog } : {}),

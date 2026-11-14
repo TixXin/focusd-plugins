@@ -46,6 +46,16 @@ test("a listed version is not downloaded again", async () => {
   assert.deepEqual(result.entry.categories, ["productivity"]);
 });
 
+test("platforms come from the manifest, and the submission can add them to a listed version", async () => {
+  assert.equal(listed("1.0.0").platforms, undefined);
+  const declared = indexEntry(manifest("1.0.0", [], { platforms: ["windows", "windows"] }), submission, "https://example.com/1.0.0.zip", zip);
+  assert.deepEqual(declared.platforms, ["windows"]);
+  const d = deps("1.0.0");
+  const result = await buildEntry({ ...submission, platforms: ["windows"] }, listed("1.0.0"), d);
+  assert.equal(d.calls.fetched, 0);
+  assert.deepEqual(result.entry.platforms, ["windows"]);
+});
+
 test("an update that keeps the permissions is listed", async () => {
   const result = await buildEntry(submission, listed("1.0.0", ["clipboard:read"]), deps("1.1.0", ["clipboard:read"]));
   assert.equal(result.entry.version, "1.1.0");

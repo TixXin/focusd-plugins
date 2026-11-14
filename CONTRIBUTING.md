@@ -39,6 +39,7 @@ English summary at the end.
 | `repo` | 插件仓库 `owner/name`，必须公开 |
 | `publisher` | 仓库所有者（GitHub 用户或组织），市场上显示为发布者 |
 | `categories` | 可选：`productivity`、`todos`、`developer`、`media`、`messages`、`information`、`utilities` |
+| `platforms` | 可选，插件能在哪些系统上运行：`windows`、`macos`。一般写在插件清单里就行；已上架的版本清单里没写时，在这里补上，市场以这里为准 |
 | `preRelease` | 可选，`true` 时收录 Pre-release |
 | `tagPrefix` | 可选，标签前缀 |
 | `path` | 可选，插件所在的文件夹（例如 `plugins/clock`），用来找 `README.md` 和 `CHANGELOG.md`；默认是仓库根目录 |

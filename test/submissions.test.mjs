@@ -12,6 +12,9 @@ test("the file name, publisher, categories and reserved ids are checked", () => 
   assert.match(submissionErrors(good, "other.json").join(), /must be named com.example.clock.json/);
   assert.match(submissionErrors({ ...good, publisher: "someone" }, "com.example.clock.json").join(), /owner of "repo"/);
   assert.match(submissionErrors({ ...good, categories: ["games"] }, "com.example.clock.json").join(), /categories/);
+  assert.deepEqual(submissionErrors({ ...good, platforms: ["windows"] }, "com.example.clock.json"), []);
+  assert.match(submissionErrors({ ...good, platforms: [] }, "com.example.clock.json").join(), /platforms/);
+  assert.match(submissionErrors({ ...good, platforms: ["linux"] }, "com.example.clock.json").join(), /platforms/);
   const reserved = { ...good, id: "com.focusd.clock" };
   assert.match(submissionErrors(reserved, "com.focusd.clock.json").join(), /reserved/);
   assert.match(submissionErrors({ ...good, id: "com.fuyu.clock" }, "com.fuyu.clock.json").join(), /reserved/);
