@@ -9,7 +9,9 @@
 // versions its author signed (<zip>.sig); a maintainer's "approved" does not
 // change that. A listed version without a signature gets one added once the
 // author publishes a valid one. Publishers are checked for the "verified" mark
-// (lib/publishers.mjs) at every build. Signing the index is scripts/sign.mjs.
+// (lib/publishers.mjs) at every build. A release must be what `fuyu-plugin pack`
+// makes from the repository at its tag (lib/source.mjs); one that is not is held
+// for review like an update asking for more. Signing the index is scripts/sign.mjs.
 //
 // Usage: node scripts/build-index.mjs   (exit code 1 when a plugin had errors;
 // index.json is still written with everything that worked)
@@ -19,6 +21,7 @@ import { fileURLToPath } from "node:url";
 import { api } from "./lib/github.mjs";
 import { fetchAndInspect, indexEntry, locatePackage, marketDetails, readAuthorSignature, repoDocs, reviewReasons } from "./lib/packages.mjs";
 import { applyVerification } from "./lib/publishers.mjs";
+import { checkSource } from "./lib/source.mjs";
 import { compareVersions, loadSubmissions, submissionErrors } from "./lib/submissions.mjs";
 
 export const INDEX_PATH = "index.json";
@@ -32,8 +35,9 @@ function readIndex(root) {
 }
 
 /** One plugin: { entry|null, held|null, errors, warnings }. */
-export async function buildEntry(submission, previous, deps = { locatePackage, fetchAndInspect, repoDocs, readAuthorSignature }) {
+export async function buildEntry(submission, previous, deps = { locatePackage, fetchAndInspect, repoDocs, readAuthorSignature, checkSource }) {
   const readSignature = deps.readAuthorSignature ?? readAuthorSignature;
+  const compareSource = deps.checkSource ?? checkSource;
   const location = await deps.locatePackage(submission);
   if (!location) {
     const error = `No release of ${submission.repo} has a tag like ${submission.tagPrefix ?? ""}v1.2.3 with the asset ${submission.id}-<version>.zip.`;
@@ -78,6 +82,11 @@ export async function buildEntry(submission, previous, deps = { locatePackage, f
     }
     if (signed.error) return { entry: previous ?? null, held: { id: entry.id, version: entry.version, reasons: [signed.error], unsigned: true }, errors: [], warnings };
     Object.assign(entry, signed.fields);
+  }
+  const source = await compareSource(submission, location, zip);
+  if (source.match) entry.sourceMatch = true;
+  else if (!source.skipped && submission.approved !== entry.version) {
+    return { entry: previous ?? null, held: { id: entry.id, version: entry.version, reasons: [source.reason] }, errors: [], warnings };
   }
   if (previous && compareVersions(entry.version, previous.version) === 0) {
     return { entry: { ...previous, ...marketDetails(submission) }, held: null, errors: [`${entry.version} is already listed with a different package; publish a new version.`], warnings };

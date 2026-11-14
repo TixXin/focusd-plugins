@@ -23,6 +23,7 @@ function deps(version, readAuthorSignature) {
     fetchAndInspect: async () => ({ zip, manifest: manifest(version), docs: {}, errors: [], warnings: [] }),
     repoDocs: async () => ({}),
     readAuthorSignature,
+    checkSource: async () => ({ match: true }),
   };
 }
 const goodSignature = async (sub, location, sha, id, version) =>

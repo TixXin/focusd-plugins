@@ -45,15 +45,25 @@ English summary at the end.
 | `path` | 可选，插件所在的文件夹（例如 `plugins/clock`），用来找 `README.md` 和 `CHANGELOG.md`；默认是仓库根目录 |
 | `domain` | 可选，你的域名（例如 `example.com`），用来成为「已验证」发布者，见下文 |
 | `signingKeys` | 可选，你的签名公钥，`npx fuyu-plugin keygen` 打印的 `[{ "keyId", "publicKey" }]`，见下文「作者签名」 |
+| `buildStep` | 可选，`true` 表示插件要先构建（例如 TypeScript 编译出的 `dist/` 不在仓库里），见下文「与源码一致」 |
 
 PR 会自动检查：
 
 - 你是 `repo` 的所有者，或者是其所属组织的**公开**成员；
 - 能找到最新 Release 和附件，zip 不超过 20 MB，能通过 `fuyu-plugin validate`，清单的 id、版本与提交和标签一致；
 - 包里没有常见格式的密钥：GitHub / npm 令牌、AWS 访问密钥、私钥、Slack 令牌、Google API Key、OpenAI / Anthropic API Key、Stripe 正式密钥。发现了就不收录，检查结果只写文件和行号，不写密钥本身。密钥一旦发布就算泄露了：请先在对应服务里撤销，再从包里去掉，发一个新版本。每小时的自动更新也做同样的检查；
+- Release 附件和仓库在这个标签处的源码一致，见下文「与源码一致」；
 - 检查结果（申请的权限、运行时、是否有自定义网页界面）列在 Actions 的运行摘要里，供审核参考。
 
 检查通过后，维护者会**阅读插件源码**，再合并。合并时立即重建索引，几分钟后插件出现在插件市场里。
+
+## 与源码一致
+
+维护者审核读的是仓库在 Release 标签处的源码，用户装的是 Release 附件。为了保证两者是同一份代码，市场取仓库在这个标签处、`path` 文件夹里的文件，用 `fuyu-plugin pack` 打包，再和附件里的文件逐个比较（文件名和内容；zip 本身的字节可以不同）。
+
+- 一致：照常上架，索引条目带 `"sourceMatch": true`。
+- 不一致：PR 检查失败，并列出多了、少了、内容不同的文件；已上架插件的新版本暂缓上架，开 `review-needed` issue，维护者核对后写 `"approved": "<版本>"` 才上架。最常见的原因是附件里带了没提交的文件，或者打包前改了文件没提交。用 `npx fuyu-plugin pack` 从**已提交、已打标签**的文件打包就不会出问题。
+- 插件要先构建、构建产物不进仓库时（例如脚手架的 TypeScript 模板），市场没法核对：它不运行你的构建脚本。在提交里写 `"buildStep": true`，这项检查跳过，条目不带 `sourceMatch`。
 
 ## 已验证发布者
 
@@ -82,7 +92,8 @@ PR 会自动检查：
 
 - 申请了新的权限；
 - 第一次加入自定义网页界面（webview 页面）；
-- 运行时变了（例如从 Node.js 改成 exe）。
+- 运行时变了（例如从 Node.js 改成 exe）；
+- 附件和标签处的源码不一致（见「与源码一致」）。
 
 审核通过后，维护者在 `plugins/<id>.json` 里写上 `"approved": "<版本>"`，下一次构建就会上架。
 
@@ -102,8 +113,9 @@ PR 会自动检查：
    Optional: `path`, the folder of the plugin in the repository, where the market looks for `README.md` / `CHANGELOG.md` when the package leaves them out (shown in the market's details, 16 KB each, fixed per version).
 4. Checks run automatically, including a scan for leaked credentials (tokens, API keys, private keys; a hit blocks the listing); a maintainer reads the source and merges. Merging rebuilds the index, so the plugin appears in the market within minutes.
    Optional author signing: `npx fuyu-plugin keygen` once and list the printed key as `"signingKeys"`, then `npx fuyu-plugin pack --sign` and attach `<zip>.sig` too. Only signed plugins update by themselves on users' islands, and an update signed by another key waits for each user's confirmation. With `signingKeys`, unsigned versions are never listed, approved or not.
+   The release asset must hold the same files `fuyu-plugin pack` makes from your repository at the release tag (in `path`); a release with uncommitted or changed files fails the check, and an update like that waits for a maintainer. If the plugin needs a build step whose output is not committed (the TypeScript template), add `"buildStep": true` to skip the comparison.
    Optional "verified" mark: a GitHub organization with a verified domain gets it automatically; otherwise list `"domain": "example.com"` and serve `https://example.com/.well-known/focusd-publisher.json` with `{ "github": "<publisher>" }`.
-5. New versions: just publish a new release. The index is rebuilt on a schedule that GitHub runs every few hours rather than every hour (sometimes over 10), and islands check the market every 6 hours, so expect about half a day. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.
+5. New versions: just publish a new release. The index is rebuilt on a schedule that GitHub runs every few hours rather than every hour (sometimes over 10), and islands check the market every 6 hours, so expect about half a day. Updates that ask for new permissions, add a webview page, change the runtime or do not match the source at their tag wait for a maintainer, who approves them with `"approved": "<version>"`.
 
 ## 提交主题 / Submit a theme
 

@@ -15,6 +15,8 @@ test("the file name, publisher, categories and reserved ids are checked", () => 
   assert.deepEqual(submissionErrors({ ...good, platforms: ["windows"] }, "com.example.clock.json"), []);
   assert.match(submissionErrors({ ...good, platforms: [] }, "com.example.clock.json").join(), /platforms/);
   assert.match(submissionErrors({ ...good, platforms: ["linux"] }, "com.example.clock.json").join(), /platforms/);
+  assert.deepEqual(submissionErrors({ ...good, buildStep: true }, "com.example.clock.json"), []);
+  assert.match(submissionErrors({ ...good, buildStep: "yes" }, "com.example.clock.json").join(), /buildStep/);
   const reserved = { ...good, id: "com.focusd.clock" };
   assert.match(submissionErrors(reserved, "com.focusd.clock.json").join(), /reserved/);
   assert.match(submissionErrors({ ...good, id: "com.fuyu.clock" }, "com.fuyu.clock.json").join(), /reserved/);
