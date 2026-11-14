@@ -53,7 +53,7 @@ PR 会自动检查：
 - 包里没有常见格式的密钥：GitHub / npm 令牌、AWS 访问密钥、私钥、Slack 令牌、Google API Key、OpenAI / Anthropic API Key、Stripe 正式密钥。发现了就不收录，检查结果只写文件和行号，不写密钥本身。密钥一旦发布就算泄露了：请先在对应服务里撤销，再从包里去掉，发一个新版本。每小时的自动更新也做同样的检查；
 - 检查结果（申请的权限、运行时、是否有自定义网页界面）列在 Actions 的运行摘要里，供审核参考。
 
-检查通过后，维护者会**阅读插件源码**，再合并。合并后一小时内，插件出现在岛屿的插件市场里。
+检查通过后，维护者会**阅读插件源码**，再合并。合并时立即重建索引，几分钟后插件出现在插件市场里。
 
 ## 已验证发布者
 
@@ -62,7 +62,7 @@ PR 会自动检查：
 - **GitHub 组织**：组织已经在 GitHub 上验证了域名（组织主页显示 Verified），不用做任何事。
 - **自己的域名**：在提交里写 `"domain": "example.com"`，并让 `https://example.com/.well-known/focusd-publisher.json` 返回 `{ "github": "<你的 publisher>" }`（HTTPS，不跳转，不超过 4 KB）。PR 会当场检查。
 
-索引每次构建（每小时）都会重新检查；文件没了或组织不再是已验证状态，标记就会去掉。暂时连不上时保留原来的状态。
+索引每次构建都会重新检查；文件没了或组织不再是已验证状态，标记就会去掉。暂时连不上时保留原来的状态。
 
 ## 作者签名
 
@@ -76,7 +76,7 @@ PR 会自动检查：
 
 ## 发布新版本
 
-在你的仓库发布新的 Release 即可，不需要再开 PR。本仓库每小时检查一次，用同样的规则校验后更新索引。
+在你的仓库发布新的 Release 即可，不需要再开 PR。本仓库定时检查，用同样的规则校验后更新索引。定时任务名义上每小时一次，但 GitHub 不保证准点，实际通常几小时一次，偶尔超过 10 小时；用户的岛屿再每 6 小时查一次市场，所以新版本到用户那里一般要半天左右。
 
 以下情况新版本**不会自动上架**，会开一个 `review-needed` issue 等维护者审核：
 
@@ -100,10 +100,10 @@ PR 会自动检查：
 2. Publish a GitHub release in your repository: tag = manifest `version` (optionally prefixed with `v`), asset = `<id>-<version>.zip`.
 3. Open a pull request here that adds only `plugins/<id>.json` (fields above). You must own `repo`, or be a public member of the organization that owns it. Ids containing `fuyu` or `focusd` are reserved.
    Optional: `path`, the folder of the plugin in the repository, where the market looks for `README.md` / `CHANGELOG.md` when the package leaves them out (shown in the market's details, 16 KB each, fixed per version).
-4. Checks run automatically, including a scan for leaked credentials (tokens, API keys, private keys; a hit blocks the listing); a maintainer reads the source and merges. The plugin appears in the market within an hour.
+4. Checks run automatically, including a scan for leaked credentials (tokens, API keys, private keys; a hit blocks the listing); a maintainer reads the source and merges. Merging rebuilds the index, so the plugin appears in the market within minutes.
    Optional author signing: `npx fuyu-plugin keygen` once and list the printed key as `"signingKeys"`, then `npx fuyu-plugin pack --sign` and attach `<zip>.sig` too. Only signed plugins update by themselves on users' islands, and an update signed by another key waits for each user's confirmation. With `signingKeys`, unsigned versions are never listed, approved or not.
    Optional "verified" mark: a GitHub organization with a verified domain gets it automatically; otherwise list `"domain": "example.com"` and serve `https://example.com/.well-known/focusd-publisher.json` with `{ "github": "<publisher>" }`.
-5. New versions: just publish a new release. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.
+5. New versions: just publish a new release. The index is rebuilt on a schedule that GitHub runs every few hours rather than every hour (sometimes over 10), and islands check the market every 6 hours, so expect about half a day. Updates that ask for new permissions, add a webview page or change the runtime wait for a maintainer, who approves them with `"approved": "<version>"`.
 
 ## 提交主题 / Submit a theme
 
